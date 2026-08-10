@@ -367,6 +367,75 @@
       text-decoration: none;
     }
     .pricing-note a:hover { text-decoration: underline; }
+
+    /* Crypto payment */
+    .crypto-payment {
+      margin-top: 2rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+    }
+    .crypto-payment-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: 0.75rem;
+    }
+    .crypto-payment-grid {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .crypto-wallet {
+      flex: 1;
+      min-width: 280px;
+    }
+    .crypto-wallet-label {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-bottom: 0.35rem;
+    }
+    .crypto-wallet-address {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+      line-height: 1.5;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-surface);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+    .crypto-chains {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      margin-top: 0.5rem;
+      line-height: 1.5;
+    }
+    .crypto-chains strong { color: var(--text-secondary); font-weight: 500; }
+    .crypto-qr {
+      flex-shrink: 0;
+      width: 120px;
+      height: 120px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .crypto-qr img { width: 100%; height: 100%; border-radius: 4px; }
+    .crypto-instructions {
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+      line-height: 1.6;
+    }
+    .crypto-instructions a { color: var(--brand-bright); text-decoration: none; }
+    .crypto-instructions a:hover { text-decoration: underline; }
     .launch-badge {
       display: inline-block;
       font-size: 0.7rem;
@@ -809,6 +878,26 @@
       </div>
     </div>
     <p class="pricing-note">Launch pricing for first 100 audits. Standard rises to &euro;149, Comprehensive to &euro;299 after launch period. <a href="mailto:hello@secondread.me?subject=Enterprise%20pricing">Bulk/agency pricing available &mdash; contact us.</a></p>
+
+    <div class="crypto-payment">
+      <div class="crypto-payment-label">Pay with crypto</div>
+      <div class="crypto-payment-grid">
+        <div class="crypto-wallet">
+          <div class="crypto-wallet-label">USDC / USDT wallet address</div>
+          <div class="crypto-wallet-address">0x67bd1ee7ba4b25bc4c709b488094511330021785</div>
+          <div class="crypto-chains">
+            <strong>Supported chains:</strong> Base (recommended, low fees), Ethereum, Polygon, Arbitrum, Optimism<br>
+            <strong>Accepted tokens:</strong> USDC, USDT
+          </div>
+          <div class="crypto-instructions">
+            Send the matching amount to the address above, then email your transaction hash and GitHub repo URL to <a href="mailto:hello@secondread.me?subject=Crypto%20payment%20%E2%80%94%20audit&body=Hi,%20I've%20sent%20a%20crypto%20payment.%0A%0ATransaction%20hash:%20%0A%0AGitHub%20repo%20URL:%20%0A%0AAudit%20tier%20(Standard%20%E2%82%AC79%20/%20Comprehensive%20%E2%82%AC249):%20">hello@secondread.me</a>. We'll confirm on-chain and start your audit within 24 hours.
+          </div>
+        </div>
+        <div class="crypto-qr">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=108x108&data=0x67bd1ee7ba4b25bc4c709b488094511330021785" alt="Wallet address QR code" width="108" height="108" />
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- FAQ -->

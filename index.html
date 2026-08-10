@@ -432,9 +432,13 @@
     footer {
       border-top: 1px solid var(--border-subtle);
       padding: 2.5rem 0;
-      text-align: center;
     }
-    footer .logo-mark { margin-bottom: 1rem; justify-content: center; }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
     footer .email {
       color: var(--text-tertiary);
       font-size: 0.875rem;
@@ -625,8 +629,8 @@
 
   <!-- Footer -->
   <footer>
-    <div class="container">
-      <div class="logo-mark" style="justify-content: center;">
+    <div class="container footer-content">
+      <div class="logo-mark">
         <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
           <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
           <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>

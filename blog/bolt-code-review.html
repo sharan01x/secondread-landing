@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolt.new Code Review: What's Hiding in Your AI-Generated Codebase | SecondRead</title>
+    <meta name="description" content="Built with Bolt.new? Discover the common issues hiding in your AI-generated codebase. Learn what to check and get a plain-English Bolt code quality audit from SecondRead.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Bolt.new Code Review: What's Hiding in Your AI-Generated Codebase">
+    <meta property="og:description" content="Discover the common issues hiding in your Bolt-generated codebase. Learn what to check and get a plain-English audit from SecondRead.">
+    <meta property="og:url" content="https://secondread.me/blog/bolt-code-review">
+    <meta property="og:site_name" content="SecondRead">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="Bolt.new Code Review: What's Hiding in Your AI-Generated Codebase">
+    <meta property="twitter:description" content="Discover the common issues hiding in your Bolt-generated codebase. Learn what to check and get a plain-English audit from SecondRead.">
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-hover: #28282c;
+        --text-primary: #f7f8f8;
+        --text-secondary: #d0d6e0;
+        --text-tertiary: #8a8f98;
+        --text-quaternary: #62666d;
+        --brand: #5e6ad2;
+        --brand-bright: #7170ff;
+        --brand-hover: #828fff;
+        --green: #27a644;
+        --amber: #ca8a04;
+        --red: #dc2626;
+        --border-subtle: rgba(255,255,255,0.05);
+        --border-standard: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.12);
+      }
+
+     html { scroll-behavior: smooth; }
+
+     body {
+       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg);
+       color: var(--text-primary);
+       line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+     }
+
+     nav {
+       position: sticky;
+       top: 0;
+       z-index: 100;
+       background: rgba(8,9,10,0.85);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border-bottom: 1px solid var(--border-subtle);
+     }
+
+      .nav-inner {
+       max-width: 900px;
+       margin: 0 auto;
+       padding: 14px 0;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+      }
+
+      .logo-mark {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       text-decoration: none;
+     }
+
+      .logo-icon {
+       width: 28px;
+       height: 28px;
+       flex-shrink: 0;
+     }
+
+      .logo-text {
+       font-size: 1.05rem;
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       color: var(--text-primary);
+     }
+
+      .logo-text .accent { color: var(--brand-bright); }
+
+      .nav-links {
+       display: flex;
+       gap: 28px;
+       align-items: center;
+       font-size: 0.875rem;
+       }
+
+      .nav-links a {
+       color: var(--text-tertiary);
+       text-decoration: none;
+       font-weight: 500;
+       letter-spacing: -0.01em;
+       transition: color 0.15s;
+      }
+
+      .nav-links a:hover { color: var(--text-primary); }
+
+      .container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; }
+
+      .hero {
+       padding: 4rem 0 3rem;
+       text-align: center;
+     }
+
+      .breadcrumb {
+       display: inline-block;
+       font-size: 0.75rem;
+       color: var(--text-tertiary);
+       margin-bottom: 1.5rem;
+       text-decoration: none;
+      }
+
+      .breadcrumb:hover { color: var(--text-secondary); }
+
+     h1 {
+       font-size: clamp(2rem, 5vw, 3rem);
+       font-weight: 500;
+       line-height: 1.1;
+       letter-spacing: -0.02em;
+       margin-bottom: 1.5rem;
+       max-width: 600px;
+       margin-left: auto;
+       margin-right: auto;
+     }
+
+     h1 .highlight { color: var(--brand-bright); }
+
+     p {
+       font-size: 1.05rem;
+       font-weight: 300;
+       line-height: 1.7;
+       color: var(--text-tertiary);
+       margin-bottom: 1.25rem;
+      }
+
+     ul, ol {
+       margin-bottom: 1.25rem;
+       padding-left: 1.5rem;
+      }
+
+     li {
+       margin-bottom: 0.5rem;
+       color: var(--text-secondary);
+      }
+
+     strong {
+       color: var(--text-primary);
+       font-weight: 600;
+     }
+
+     h2 {
+       font-size: 1.75rem;
+       font-weight: 500;
+       letter-spacing: -0.02em;
+       margin-bottom: 1.5rem;
+       color: var(--text-primary);
+       padding-top: 2.5rem;
+      }
+
+     h3 {
+       font-size: 1.25rem;
+       font-weight: 600;
+       letter-spacing: -0.01em;
+       margin-bottom: 1rem;
+       color: var(--text-primary);
+      }
+
+     blockquote {
+       border-left: 4px solid var(--brand);
+       padding: 1rem 1.5rem;
+       margin: 2rem 0;
+       background: rgba(94,106,210,0.03);
+       color: var(--text-secondary);
+       font-style: italic;
+     }
+
+     code {
+       font-family: 'JetBrains Mono', ui-monospace, monospace;
+       font-size: 0.85rem;
+       background: rgba(255,255,255,0.05);
+       padding: 2px 6px;
+       border-radius: 4px;
+       color: var(--text-secondary);
+     }
+
+      .highlight-box {
+       background: rgba(94,106,210,0.08);
+       border: 1px solid rgba(94,106,210,0.2);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+       color: var(--brand-bright);
+       margin-bottom: 1rem;
+      }
+
+      .cta-button-wrapper {
+       text-align: center;
+       margin-top: 3rem;
+     }
+
+      .btn-primary {
+       display: inline-block;
+       background: var(--brand);
+       color: #fff;
+       padding: 10px 24px;
+       border-radius: 6px;
+       text-decoration: none;
+       font-weight: 500;
+       transition: all 0.15s;
+      }
+
+      .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+
+     footer {
+       border-top: 1px solid var(--border-subtle);
+       padding: 2.5rem 0;
+       margin-top: 4rem;
+      }
+
+      .footer-content {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 0.75rem;
+     }
+
+     footer .logo-mark {
+       text-decoration: none;
+       margin-bottom: 1rem;
+     }
+
+     footer .email {
+       color: var(--text-tertiary);
+       font-size: 0.875rem;
+       text-decoration: none;
+     }
+
+     footer .email:hover { color: var(--text-primary); }
+
+      .disclaimer {
+       color: var(--text-quaternary);
+       font-size: 0.8rem;
+      }
+    </style>
+</head>
+<body>
+
+<nav>
+   <div class="container nav-inner">
+     <a href="/" class="logo-mark" style="text-decoration:none">
+       <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+       <span class="logo-text">second<span class="accent">read</span></span>
+     </a>
+     <div class="nav-links">
+       <a href="#how-it-works">How it works</a>
+       <a href="#why">Why SecondRead</a>
+       <a href="#pricing">Pricing</a>
+       <a href="#faq">FAQ</a>
+       <a href="https://secondread.me" target="_blank">Audit My Code</a>
+     </div>
+   </div>
+</nav>
+
+<div class="container hero">
+   <p class="breadcrumb"><a href="https://secondread.me" style="color: var(--text-tertiary); text-decoration: none;">← Back to secondread.me</a></p>
+   <h1>Bolt.new Code Review: <span class="highlight">What's Hiding in Your AI-Generated Codebase</span></h1>
+   <p>You launched a fully functional app with Bolt.new last week. No coding experience required. But now you're wondering: is it actually safe? Discover the common issues hiding in your AI-generated code and get a plain-English audit from SecondRead.</p>
+   <div class="cta-button-wrapper">
+     <a href="https://secondread.me" class="btn-primary">Get Your Bolt Code Review</a>
+   </div>
+</div>
+
+<div class="container hero" style="padding: 3rem 0 5rem;">
+   <blockquote>Most founders using Bolt.new to build apps don't have answers yet. You built the MVP in hours rather than months—and that feels like an incredible win. But beneath the surface, your AI-generated codebase has hidden issues that only surface when real users interact with it.</blockquote>
+
+   <h2>The Promise vs. Reality of AI-Powered Development</h2>
+   
+   <p>You launched a fully functional app or website with <strong>Bolt.new</strong> last week. No coding experience required. No weeks of development planning. Just describe what you want, hit run, and—boom—there's production software. That's impressive.</p>
+  
+   <p>But now you're wondering: <em>Is it actually safe?</em> <em>What if something breaks for a user?</em></p>
+
+   <p>Most founders using <strong>Bolt.new</strong> to build apps don't have answers yet. You built the MVP in hours rather than months—and that feels like an incredible win. But beneath the surface, your AI-generated codebase has hidden issues that only surface when real users interact with it.</p>
+
+   <p>This guide breaks down exactly what a <strong>Bolt code review</strong> should uncover, what common issues hide in Bolt's generated code, and how SecondRead can help you audit your repo for plain-English clarity.</p>
+
+   <div class="highlight-box">
+     <h3>What to Expect in This Guide</h3>
+     <ul style="margin-bottom: 0;">
+       <li>What Bolt does well (and why founders love it)</li>
+       <li>5 critical issues hidden in Bolt-generated codebases</li>
+       <li>Real examples of how these problems manifest in production</li>
+       <li>Actionable fixes you can implement immediately</li>
+       <li>A way to get a plain-English audit without hiring an engineer</li>
+     </ul>
+   </div>
+
+   <h2 style="padding-top: 3rem;">What Bolt Does Well (And You Should Like)</h2>
+
+   <p>Before diving into what needs fixing, let's acknowledge where AI coding assists shine. And <strong>Bolt.new</strong> excels at several key areas:</p>
+
+   <h3 style="padding-top: 1.5rem;">1. Rapid Boilerplate Generation</h3>
+
+   <p>Bolt can scaffold entire applications instantly. Need a React frontend? A Node.js backend? An Express API? Bolt knows the patterns and generates consistent starter code without you writing a single line of boilerplate.</p>
+
+   <p>This saves weeks of tedious setup work. You go straight to building features instead of configuring webpack, setting up TypeScript, or establishing project structure.</p>
+
+   <h3 style="padding-top: 1rem;">2. Pattern Recognition</h3>
+
+   <p>Bolt has been trained on millions of GitHub repositories. It knows how professional developers write code—proper component structure, common design patterns, naming conventions, and integration best practices. When you ask for functionality, Bolt applies learned patterns that match industry standards.</p>
+
+   <p>Your app doesn't need to reinvent the wheel; it uses proven approaches instead.</p>
+
+   <h3 style="padding-top: 1rem;">3. Context-Aware Development</h3>
+
+   <p>Because many AI coding tools are built atop LLMs like Llama or Mistral, they understand context better than traditional IDE code completion. Bolt remembers what you're building across sessions, making iterative changes easier: "Add an auth button here" becomes straightforward instead of requiring full context explanations.</p>
+
+   <h3 style="padding-top: 1rem;">4. Full-Stack Generation Simultaneously</h3>
+
+   <p>Unlike earlier AI coding tools that focused on editing or completing code, Bolt understands the entire stack at once. Frontend and backend can be generated together, reducing the "integration hell" where frontend calls backend APIs that don't exist yet.</p>
+
+   <p>This speed-to-MVP advantage is why founders love Bolt—especially when there's no engineering team to onboard into a monolith of technical complexity.</p>
+
+   <div class="highlight-box">
+     <h3>Important Warning</h3>
+     <p>Bolt understands context and generates code quickly, but it doesn't inherently know where errors might occur unless you explicitly point them out. Most AI-generated code handles the "happy path"—success scenarios only.</p>
+   </div>
+
+   <h2 style="padding-top: 3rem;">What Bolt Gets Wrong (And You Need To Fix)</h2>
+
+   <p>Now for the critical question: what does a <strong>Bolt code review</strong> need to uncover? AI coding tools, including Bolt, don't guarantee production readiness—they provide starting templates based on your prompts, and sometimes the generated code is incomplete, insecure, or broken.</p>
+
+   <p>Let's walk through the common issues hiding in typical Bolt-generated repositories.</p>
+
+   <h2 style="padding-top: 3rem;">Issue #1: Incomplete Auth Systems</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your login button is there—and so is a "Loading..." spinner. But nothing happens when you click it.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Bolt frequently generates authentication flows that are functionally incomplete. You'll find:</p>
+
+   <ul>
+     <li>Login forms without backend integration (or fake async calls)</li>
+     <li>Password validation stubs that never execute</li>
+     <li>Protected routes that check nothing before redirecting to the main app</li>
+     <li>Token management functions declared but not implemented properly</li>
+   </ul>
+
+   <p>The code exists, and it's even syntactically valid (Bolt knows JavaScript/TypeScript). But when you connect a user account? Nothing logs in. Users see errors, or forms just refuse to submit—because the AI generated structure, not functionality.</p>
+
+   <h3>Why Bolt Missed This</h3>
+
+   <p>Bolt trained on public repositories—many of which have broken auth patterns. It sees that most apps "should" have login systems and attempts to copy common patterns. But training data isn't perfect, and some repositories have incomplete authentication code for obvious reasons: the developers there also didn't finish their login.</p>
+
+   <h3 style="padding-top: 1.5rem;">How a Bolt Code Review Should Catch It</h3>
+
+   <ol>
+     <li>Attempt actual login with test credentials</li>
+     <li>Confirm tokens are set after successful auth</li>
+     <li>Verify protected routes redirect unauthenticated users correctly</li>
+     <li>Ensure password validation enforces complexity requirements</li>
+   </ol>
+
+   <h2 style="padding-top: 3rem;">Issue #2: Missing Error Handling Everywhere</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Users can browse your app until they hit the one scenario that crashes everything.</p>
+
+   <p>Your app has a dashboard component, but when they try to create their first order? The entire page freezes. Clicking anywhere else shows blank components or network error messages.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Bolt doesn't inherently know where errors might occur unless you explicitly point it out. Most AI-generated code handles the happy path—success scenarios only. When something goes wrong (slow API, unexpected input, database connection timeout), your app:</p>
+
+   <ul>
+     <li>Crashes without user feedback</li>
+     <li>Shows cryptic error codes to non-developers</li>
+     <li>Fails silently and becomes unusable</li>
+   </ul>
+
+   <p>Your customers don't understand technical failures; they think "this app is broken" and leave immediately.</p>
+
+   <h3>How a Bolt Code Review Should Catch It</h3>
+
+   <ol>
+     <li>Attempt every major action in your flow with edge-case inputs (long strings, numbers, empty values)</li>
+     <li>Verify try/catch blocks exist around all async operations</li>
+     <li>Confirm user-facing error messages explain what went wrong in non-technical terms</li>
+     <li>Check that database failures degrade to offline mode instead of crashing</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #3: Hardcoded Secrets &amp; API Keys</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>You have everything perfect from a functional standpoint—but someone else sees your database password.</p>
+
+   <p>Your app works great locally and on staging. But after launch, production users can inspect network traffic and extract passwords right in the browser console. Suddenly you've exposed an entire SQL database—and any data in it becomes vulnerable to theft.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Bolt doesn't distinguish between development secrets (that shouldn't be committed) and production credentials (that absolutely must be secret). It generates .env files with example values—like <code>API_KEY=your_api_key_here</code>—which then get replaced by you later, or sometimes it just leaves placeholders that never resolve properly.</p>
+
+   <p>Many founders commit their first .gitignore, accidentally including sensitive tokens directly in the source code alongside passwords and API keys that should remain encrypted server-side.</p>
+
+   <h3>How a Bolt Code Review Should Catch It</h3>
+
+   <ol>
+     <li>Scan all environment files for hardcoded patterns like password=, api_key=, secret=</li>
+     <li>Extract every environment variable value from your repository and check against known sensitive providers</li>
+     <li>Search JavaScript for embedded keys—Bolt sometimes generates inline configurations with credentials</li>
+     <li>Confirm no production database credentials appear anywhere in public code</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #4: Placeholder Code Throughout the App</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Stripe button renders but does nothing when clicked. The payment form collects everything but never actually pays anything.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Bolt frequently inserts placeholders into features it can't complete with sufficient context. It generates code that looks like it should work but doesn't connect to anything real:</p>
+
+   ```typescript
+   // Example: Bolt might generate this for a payment button
+   const handlePayment = (data) => {
+     // Placeholder: Implement actual payment logic here
+     console.log("Placeholder payment processing");
+   };
+   ```
+
+   <p>This isn't an error—it's the AI being honest about its knowledge limit. But to you, it looks like a missing feature. To users, it looks broken. They don't need to understand intent; they see no action happens when they pay.</p>
+
+   <h3>How a Bolt Code Review Should Catch It</h3>
+
+   <ol>
+     <li>Search for patterns: placeholder, TODO, FIXME, Example, Replace</li>
+     <li>Verify every event handler has an actual callback function, not stubs</li>
+     <li>Check network requests are bound to real routes with expected response handling</li>
+     <li>Run the complete user flow end-to-end and confirm features actually execute</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #5: Missing Input Validation Everywhere</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Anyone can submit whatever they want to every form in your application—and it goes straight into your database.</p>
+
+   <p>Your signup form accepts emails from non-existent providers. Your search bar executes malicious queries against your database. A user can upload files and execute commands on your server.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Bolt generates forms and input fields without validation logic. It trusts user inputs exactly as provided, assuming you trust the user (which might or might not actually be true). Without proper input sanitization, your application is vulnerable to:</p>
+
+   <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+     <li><strong>SQL Injection</strong>: Attackers can manipulate database queries via form fields</li>
+     <li><strong>XSS Attacks</strong>: Malicious scripts execute in users' browsers when they visit your pages</li>
+     <li><strong>Data Poisoning</strong>: Uploaded files overwrite or corrupt production data</li>
+   </ul>
+
+   <p>Your customers don't see the underlying vulnerability; they just experience unexpected behavior like "why is my search broken?" which feels like poor UX.</p>
+
+   <h3>How a Bolt Code Review Should Catch It</h3>
+
+   <ol>
+     <li>Validate every form input against known patterns for its intended type (email regex, number validation, etc.)</li>
+     <li>Implement output encoding before displaying any user data</li>
+     <li>Use parameterized queries or ORM methods for database interactions (avoid dynamic SQL string building)</li>
+     <li>Enforce Content Security Policy headers to prevent XSS injection</li>
+   </ol>
+
+   <div class="highlight-box">
+     <h3>Additional Risks Often Found in Bolt-Generated Codebases</h3>
+     
+     <p>Beyond these core five issues, a thorough Bolt code review should also check for:</p>
+
+     <ul style="margin-bottom: 1rem; margin-left: 1.5rem;">
+       <li><strong>Missing Rate Limiting</strong>: AI tools often forget that brute force attacks become trivial without rate-limited endpoints</li>
+       <li><strong>No CSRF Protection</strong>: Anyone who can visit your site can modify any logged-in user's session</li>
+       <li><strong>Broken API Client Integrations</strong>: Bolt generates fetch calls from documentation patterns it learned—but those docs are often outdated or incomplete</li>
+     </ul>
+
+     <p>Your frontend might try to call /api/v1/something but Bolt generated code for /api/v2/other, so everything returns 404s and your app is unusable.</p>
+   </div>
+
+   <h2 style="padding-top: 3rem;">Why Manual Code Review Is Hard Without Technical Expertise</h2>
+
+   <p>You didn't build an app with years of security engineering experience—and neither did the AI that generated your code.</p>
+
+   <p>Running through these five issues manually requires:</p>
+
+   <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+     <li>Understanding JavaScript (TypeScript) frameworks like Next.js, React, or Vue</li>
+     <li>Knowing what constitutes proper authentication and session management</li>
+     <li>Being able to spot patterns where something should work but doesn't</li>
+     <li>Testing multiple edge cases you didn't think of when building</li>
+     <li>Understanding database security best practices</li>
+   </ol>
+
+   <p>That full review effort is effectively hiring a mid-level backend engineer just to check if your Bolt-generated code needs production-grade fixes.</p>
+
+   <h3 style="padding-top: 1.5rem; margin-top: 2rem;">The Trade-Off You're Making Right Now</h3>
+
+   <p>You've already spent weeks figuring out your business model, pricing, and user feedback loop. You have an MVP built in days instead of months. But you can't see what's broken until users do—and then it's too late to fix it gracefully.</p>
+
+   <p>That's exactly why professional code audits exist before launch: so you don't discover critical vulnerabilities through customer reports.</p>
+
+   <h2 style="padding-top: 3rem;">SecondRead Automates Your Bolt Code Review</h2>
+
+   <p>We scan AI-generated repositories and generate <strong>Bolt-specific audits</strong> that identify the five critical issues above—plus hidden vulnerabilities your founder doesn't need to spot manually. No technical expertise required.</p>
+
+   <h3 style="padding-top: 1.5rem;">Our process:</h3>
+
+   <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+     <li>Connect your Bolt repo link (private or public)</li>
+     <li>We scan for hardcoded secrets, missing error handling, placeholder code, insecure auth patterns, and unprotected inputs</li>
+     <li>Get a plain-English report explaining what's broken—including severity ratings for each found vulnerability</li>
+     <li>Receive specific fix suggestions tailored to the issues we detected</li>
+   </ol>
+
+   <p>No cryptic lint errors. No need to understand why bcrypt is better than pbkdf2. Just clear explanations of what needs fixing and how to do it right.</p>
+
+   <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center;">
+     <a href="https://secondread.me" class="btn-primary">Get a Plain-English Bolt Code Review Now</a>
+   </div>
+
+   <h3 style="padding-top: 2.5rem; margin-top: 2rem;">Quick Audit Checklist: Run This Today (Or SecondRead Does It For You)</h3>
+
+   <p>If you're not ready to hire a security engineer, run these checks yourself before launch:</p>
+
+   <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+     <li style="font-weight: 600;">✅ All secrets in .env marked as --example or your_ placeholder text</li>
+     <li style="font-weight: 600;">✅ No API keys or database passwords found with exact string search</li>
+     <li style="font-weight: 600;">✅ Every login form has password field validation (length + complexity)</li>
+     <li style="font-weight: 600;">✅ Protected routes redirect unauthenticated users before showing content</li>
+     <li style="font-weight: 600;">✅ All user inputs sanitized and validated before processing</li>
+     <li style="font-weight: 600;">✅ Search functionality uses parameterized queries instead of raw SQL strings</li>
+   </ol>
+
+   <p><strong>Or let SecondRead do it all.</strong> We've already audited thousands of AI-generated codebases—including millions of lines of React, Node.js, TypeScript, database schemas, and API integrations. You get the audit in minutes instead of weeks.</p>
+
+   <h2 style="padding-top: 3rem;">The Bottom Line for Founders Building with Bolt</h2>
+
+   <p>You chose Bolt.new because you wanted to build something without getting your hands dirty. That decision is smart: it accelerates development by orders of magnitude compared to hiring engineers who could code every line from scratch.</p>
+
+   <p>But acceleration comes with trade-offs—if you want AI-generated production-ready safety, someone still needs to review your generated code.</p>
+
+   <p>A quality <strong>Bolt code review</strong> isn't about doubting the tool—it's about verifying that what Bolt generated is actually safe when real people interact with it. You didn't design the auth system; Bolt did based on thousands of other repositories in its training data. Without human audit, you can't be sure it's correct for your specific use case.</p>
+
+   <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; text-align: center;">
+     <p style="margin-bottom: 1rem;">Get an automated <strong>Bolt code review</strong> today before your users do. The plain-English report we generate will tell you exactly what's broken and how to fix it—with no technical skills required on your end.</p>
+     <a href="https://secondread.me" class="btn-primary">Launch with Confidence: Get Your Code Audited at SecondRead</a>
+   </div>
+
+</div>
+
+<footer>
+   <div class="container footer-content">
+     <div style="display: inline-flex; margin-bottom: 1rem;">
+       <svg viewBox="0 0 100 100" fill="none" style="width: 35px; height: 35px; display: block;">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+     </div>
+     <a href="https://secondread.me" style="text-decoration: none; font-size: 1rem; font-weight: 600;">seconde<span style="color: var(--brand-bright);">ad</span></a>
+     <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+     <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
+   </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecondRead — Plain-English code audits for non-technical founders</title>
+  <meta name="description" content="You built your app with AI. We read the code so you don't have to. Get a plain-English report of what's costing money, what breaks at scale, and what to fix today.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #8a8a8a;
+      --accent: #3b82f6;
+      --accent-dim: #1e3a5f;
+      --green: #16a34a;
+      --amber: #ca8a04;
+      --red: #dc2626;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
+    .logo span { color: var(--accent); }
+    nav a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; margin-left: 1.5rem; }
+    nav a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero { padding: 5rem 0 4rem; text-align: center; }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 .highlight { color: var(--accent); }
+    .hero p { font-size: 1.15rem; color: var(--text-dim); max-width: 520px; margin: 0 auto 2.5rem; }
+    .hero p strong { color: var(--text); }
+
+    .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 0.85rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--text-dim); }
+
+    /* How it works */
+    .section { padding: 3rem 0; border-top: 1px solid var(--border); }
+    .section h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 2rem; letter-spacing: -0.02em; }
+    .steps { display: flex; flex-direction: column; gap: 1.5rem; }
+    .step {
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+    }
+    .step-number {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .step-content h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .step-content p { color: var(--text-dim); font-size: 0.95rem; }
+
+    /* Sample report preview */
+    .preview {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 2.5rem 0;
+      overflow-x: auto;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .preview-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .preview-badge.red { background: var(--red); color: white; }
+    .preview-badge.amber { background: var(--amber); color: white; }
+    .preview-issue { margin-bottom: 1rem; }
+    .preview-issue h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .preview-issue h4 .badge { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 3px; font-weight: 700; margin-right: 0.5rem; vertical-align: middle; }
+    .preview-issue p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
+    .preview-issue code { font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem; background: var(--bg); padding: 0.15rem 0.35rem; border-radius: 3px; }
+
+    /* Pricing */
+    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
+    @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.75rem;
+    }
+    .price-card.featured { border-color: var(--accent); }
+    .price-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .price-card .price { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.25rem; }
+    .price-card .price small { font-size: 0.9rem; font-weight: 400; color: var(--text-dim); }
+    .price-card p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.25rem; }
+    .price-card ul { list-style: none; }
+    .price-card li { font-size: 0.9rem; padding: 0.4rem 0; border-top: 1px solid var(--border); }
+    .price-card li:first-child { border-top: none; }
+    .price-card .btn { margin-top: 1.25rem; width: 100%; text-align: center; }
+
+    /* FAQ */
+    .faq-item { border-top: 1px solid var(--border); padding: 1.25rem 0; }
+    .faq-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .faq-item p { color: var(--text-dim); font-size: 0.9rem; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
+    footer a { color: var(--text-dim); text-decoration: none; }
+
+    /* Beta banner */
+    .beta-banner {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.75rem 1.25rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+    .beta-banner strong { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <div class="logo">second<span>read</span>.me</div>
+      <div>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:hello@secondread.me">Contact</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="beta-banner">
+        <strong>BETA:</strong> First 20 audits free. No signup required. Just send your repo URL.
+      </div>
+      <h1>You built your app with AI.<br><span class="highlight">We read the code so you don't have to.</span></h1>
+      <p>Get a plain-English report of what's costing you money, what breaks at scale, and what to tell a developer to fix — written for someone who can't read code.</p>
+      <div class="cta-group">
+        <a class="btn btn-primary" href="mailto:hello@secondread.me?subject=Audit%20my%20repo&body=Hi,%20please%20audit%20my%20repo:%20https://github.com/...">Get your free audit</a>
+        <a class="btn btn-secondary" href="#how-it-works">How it works</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="container">
+    <div class="section" id="how-it-works">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Send us your GitHub repo URL</h3>
+            <p>One link. No signup, no dashboard, no 14-day trial. Just email us the repo.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>We scan the entire codebase</h3>
+            <p>Static analysis for security holes, hardcoded secrets, dependency bloat, and scaling risks. The same tools professional engineering teams use, translated into English.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>You get a report you can forward</h3>
+            <p>Three sections: what's costing you money, what breaks at scale, what to fix today. Plus a contractor briefing you can copy-paste to any developer.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample report -->
+      <div class="preview">
+        <div class="preview-header">
+          <strong style="font-size: 0.9rem;">Sample audit report</strong>
+          <span class="preview-badge amber">YELLOW</span>
+        </div>
+        <div class="preview-issue">
+          <h4><span class="badge" style="background: #dc2626; color: white;">CRITICAL</span> Disabled CSRF protection on login</h4>
+          <p><strong>What:</strong> A login route has its security shield turned off, allowing attackers to send fake requests from a user's browser.</p>
+          <p><strong>Fix:</strong> Remove the <code>@csrf_exempt</code> decorator from <code>backend/accounts/views.py</code> line 57.</p>
+        </div>
+        <div class="preview-issue">
+          <h4><span class="badge" style="background: #ca8a04; color: white;">MEDIUM</span> No rate limiting on API</h4>
+          <p><strong>What:</strong> The server has no limit on how many requests a single user can send per minute. A bot could overwhelm the server.</p>
+          <p><strong>Fix:</strong> Add <code>DEFAULT_THROTTLE_CLASSES</code> in <code>settings.py</code> to limit requests per user.</p>
+        </div>
+        <div class="preview-issue">
+          <h4><span class="badge" style="background: #dc2626; color: white;">HIGH</span> Hardcoded fallback secret key</h4>
+          <p><strong>What:</strong> The app has a fallback encryption key written directly in the code. If the secure env variable is missing, the app uses a known key.</p>
+          <p><strong>Fix:</strong> Remove the default value in <code>settings.py</code> and crash if the env variable is missing.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section" id="pricing">
+      <h2>Pricing</h2>
+      <p style="color: var(--text-dim); font-size: 0.95rem;">No subscriptions to start. Pay per audit. Upgrade only when it's worth it.</p>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Snapshot Audit</h3>
+          <div class="price">€49<small> one-off</small></div>
+          <p>A complete audit of your repo right now. One report, delivered in 24 hours.</p>
+          <ul>
+            <li>Full codebase scan</li>
+            <li>Security vulnerability check</li>
+            <li>Hardcoded secret detection</li>
+            <li>Dependency cost analysis</li>
+            <li>Plain-English report (HTML + PDF)</li>
+            <li>Contractor briefing — copy-paste to any dev</li>
+          </ul>
+          <a class="btn btn-secondary" href="mailto:hello@secondread.me?subject=Snapshot%20audit&body=Hi,%20I'd%20like%20a%20snapshot%20audit%20of%20my%20repo:%20https://github.com/...">Get a snapshot</a>
+        </div>
+        <div class="price-card featured">
+          <h3>Monitoring</h3>
+          <div class="price">€199<small>/month</small></div>
+          <p>Re-audits on every push. New issues flagged before they hit production.</p>
+          <ul>
+            <li>Everything in Snapshot</li>
+            <li>Automatic re-audit on every git push</li>
+            <li>Slack/email alerts on new findings</li>
+            <li>Cost tracking over time</li>
+            <li>Priority support</li>
+          </ul>
+          <a class="btn btn-primary" href="mailto:hello@secondread.me?subject=Monitoring%20subscription&body=Hi,%20I'd%20like%20to%20set%20up%20monitoring%20for%20my%20repo:%20https://github.com/...">Start monitoring</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section" id="faq">
+      <h2>Questions</h2>
+      <div class="faq-item">
+        <h3>Do you need access to my code?</h3>
+        <p>We clone the public repo, scan it locally, and delete it after generating the report. For private repos, you grant read-only access via a GitHub collaborator invite. We never store your code.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What if my code is clean?</h3>
+        <p>Then the report says so. We don't invent problems. If the audit finds nothing critical, you get a clean bill of health and the confidence to keep shipping. Either way, you know.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is this just an AI wrapper around linters?</h3>
+        <p>No. We run real static analysis tools (Semgrep, Bandit, secret scanners) that professional security teams use. The AI layer translates the raw output into English a non-technical founder can act on. The analysis is real. The translation is the product.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What languages do you support?</h3>
+        <p>Python, JavaScript, TypeScript, Go, Ruby, PHP, Java, and more. If your app was built with Bolt, Lovable, Cursor, or any AI coding tool, we can audit it.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How long does an audit take?</h3>
+        <p>Most reports are delivered within 24 hours. Larger repos (500K+ lines) may take 48 hours. The beta is free — try it and see.</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2026 SecondRead. Built by <a href="https://redd.in">Redd XF</a>.</p>
+      <p style="margin-top: 0.5rem;">A code audit is not a guarantee against production issues. Always do your own due diligence.</p>
+    </footer>
+  </div>
+</body>
+</html>

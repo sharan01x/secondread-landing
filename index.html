@@ -5,310 +5,640 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SecondRead — Plain-English code audits for non-technical founders</title>
   <meta name="description" content="You built your app with AI. We read the code so you don't have to. Get a plain-English report of what's costing money, what breaks at scale, and what to fix today.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
     :root {
-      --bg: #0a0a0a;
-      --surface: #141414;
-      --border: #2a2a2a;
-      --text: #e5e5e5;
-      --text-dim: #8a8a8a;
-      --accent: #3b82f6;
-      --accent-dim: #1e3a5f;
-      --green: #16a34a;
+      --bg: #08090a;
+      --bg-panel: #0f1011;
+      --bg-surface: #191a1b;
+      --bg-hover: #28282c;
+      --text-primary: #f7f8f8;
+      --text-secondary: #d0d6e0;
+      --text-tertiary: #8a8f98;
+      --text-quaternary: #62666d;
+      --brand: #5e6ad2;
+      --brand-bright: #7170ff;
+      --brand-hover: #828fff;
+      --green: #27a644;
       --amber: #ca8a04;
       --red: #dc2626;
+      --border-subtle: rgba(255,255,255,0.05);
+      --border-standard: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.12);
     }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      font-feature-settings: "cv01", "ss03";
       background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
+      color: var(--text-primary);
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
+
     .container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Logo */
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+    .logo-text .accent { color: var(--brand-bright); }
 
     /* Nav */
     nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,9,10,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.5rem 0;
-      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
     }
-    .logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
-    .logo span { color: var(--accent); }
-    nav a { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; margin-left: 1.5rem; }
-    nav a:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a {
+      color: var(--text-tertiary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 18px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      transition: all 0.15s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-standard);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.06); border-color: var(--border-strong); }
+    .btn-full { width: 100%; }
 
     /* Hero */
-    .hero { padding: 5rem 0 4rem; text-align: center; }
+    .hero {
+      padding: 6rem 0 5rem;
+      text-align: center;
+    }
     .hero h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-weight: 500;
+      line-height: 1.05;
       letter-spacing: -0.03em;
-      line-height: 1.2;
       margin-bottom: 1.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    .hero h1 .highlight { color: var(--accent); }
-    .hero p { font-size: 1.15rem; color: var(--text-dim); max-width: 520px; margin: 0 auto 2.5rem; }
-    .hero p strong { color: var(--text); }
+    .hero h1 .highlight { color: var(--brand-bright); }
+    .hero p {
+      font-size: 1.125rem;
+      font-weight: 300;
+      line-height: 1.6;
+      color: var(--text-tertiary);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+    }
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
 
-    .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-block;
-      padding: 0.85rem 2rem;
-      border-radius: 8px;
+    /* Beta banner */
+    .beta-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(94,106,210,0.08);
+      border: 1px solid rgba(94,106,210,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      margin-bottom: 2.5rem;
+      font-size: 0.825rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+    .beta-banner .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(39,166,68,0.5);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .beta-banner strong { color: var(--brand-bright); font-weight: 600; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Sections */
+    .section {
+      padding: 4rem 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .section-label {
+      font-size: 0.75rem;
       font-weight: 600;
-      font-size: 1rem;
-      text-decoration: none;
-      transition: all 0.2s;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--brand-bright);
+      margin-bottom: 0.75rem;
     }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
-    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { border-color: var(--text-dim); }
+    .section h2 {
+      font-size: 1.75rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
 
-    /* How it works */
-    .section { padding: 3rem 0; border-top: 1px solid var(--border); }
-    .section h2 { font-size: 1.6rem; font-weight: 600; margin-bottom: 2rem; letter-spacing: -0.02em; }
-    .steps { display: flex; flex-direction: column; gap: 1.5rem; }
+    /* Steps */
+    .steps { display: flex; flex-direction: column; gap: 0; }
     .step {
       display: flex;
       gap: 1.25rem;
       align-items: flex-start;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border-subtle);
     }
+    .step:first-child { border-top: none; padding-top: 0; }
     .step-number {
       flex-shrink: 0;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: var(--accent-dim);
-      color: var(--accent);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: rgba(94,106,210,0.1);
+      border: 1px solid rgba(94,106,210,0.2);
+      color: var(--brand-bright);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 0.95rem;
+      font-weight: 600;
+      font-size: 0.85rem;
     }
-    .step-content h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.35rem; }
-    .step-content p { color: var(--text-dim); font-size: 0.95rem; }
+    .step-content h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.35rem;
+      color: var(--text-primary);
+    }
+    .step-content p {
+      color: var(--text-tertiary);
+      font-size: 0.95rem;
+      font-weight: 300;
+      line-height: 1.6;
+    }
 
-    /* Sample report preview */
+    /* Sample report */
     .preview {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin: 2.5rem 0;
-      overflow-x: auto;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-standard);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 2.5rem;
     }
     .preview-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255,255,255,0.02);
     }
-    .preview-badge {
+    .preview-header .title {
+      font-size: 0.825rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .preview-header .dots {
+      display: flex;
+      gap: 5px;
+    }
+    .preview-header .dots span {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .preview-body { padding: 16px; }
+    .preview-health {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .preview-health .badge {
       display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
       font-weight: 600;
+      letter-spacing: 0.02em;
     }
-    .preview-badge.red { background: var(--red); color: white; }
-    .preview-badge.amber { background: var(--amber); color: white; }
-    .preview-issue { margin-bottom: 1rem; }
-    .preview-issue h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .preview-issue h4 .badge { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 3px; font-weight: 700; margin-right: 0.5rem; vertical-align: middle; }
-    .preview-issue p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.3rem; }
-    .preview-issue code { font-family: 'SF Mono', Monaco, monospace; font-size: 0.8rem; background: var(--bg); padding: 0.15rem 0.35rem; border-radius: 3px; }
+    .preview-health .badge.amber { background: rgba(202,138,4,0.15); color: var(--amber); border: 1px solid rgba(202,138,4,0.3); }
+    .preview-health .badge.green { background: rgba(39,166,68,0.15); color: var(--green); border: 1px solid rgba(39,166,68,0.3); }
+    .preview-health .badge.red { background: rgba(220,38,38,0.15); color: var(--red); border: 1px solid rgba(220,38,38,0.3); }
+    .preview-health .summary { font-size: 0.85rem; color: var(--text-tertiary); font-weight: 300; }
+    .preview-issue { margin-bottom: 14px; }
+    .preview-issue:last-child { margin-bottom: 0; }
+    .preview-issue-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .preview-issue-header .sev {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.03em;
+    }
+    .preview-issue-header .sev.critical { background: var(--red); color: white; }
+    .preview-issue-header .sev.high { background: rgba(220,38,38,0.8); color: white; }
+    .preview-issue-header .sev.medium { background: var(--amber); color: white; }
+    .preview-issue-header h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .preview-issue p {
+      font-size: 0.85rem;
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+      font-weight: 300;
+    }
+    .preview-issue code {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.78rem;
+      background: rgba(255,255,255,0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+    }
+    .preview-briefing {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .preview-briefing .label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-quaternary);
+      margin-bottom: 8px;
+    }
+    .preview-briefing ol {
+      padding-left: 20px;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
 
     /* Pricing */
-    .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; }
-    @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
-    .price-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.75rem;
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
     }
-    .price-card.featured { border-color: var(--accent); }
-    .price-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .price-card .price { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.25rem; }
-    .price-card .price small { font-size: 0.9rem; font-weight: 400; color: var(--text-dim); }
-    .price-card p { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 1.25rem; }
-    .price-card ul { list-style: none; }
-    .price-card li { font-size: 0.9rem; padding: 0.4rem 0; border-top: 1px solid var(--border); }
+    @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-standard);
+      border-radius: 12px;
+      padding: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .price-card:hover { border-color: var(--border-strong); }
+    .price-card.featured {
+      border-color: rgba(94,106,210,0.3);
+      background: rgba(94,106,210,0.03);
+    }
+    .price-card h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .price-card .price {
+      font-size: 2.25rem;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.25rem;
+    }
+    .price-card .price small {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-tertiary);
+    }
+    .price-card .desc {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+      font-weight: 300;
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .price-card ul {
+      list-style: none;
+      margin-bottom: 1.25rem;
+    }
+    .price-card li {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-secondary);
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .price-card li:first-child { border-top: none; }
-    .price-card .btn { margin-top: 1.25rem; width: 100%; text-align: center; }
+    .price-card li::before {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--brand);
+      flex-shrink: 0;
+    }
 
     /* FAQ */
-    .faq-item { border-top: 1px solid var(--border); padding: 1.25rem 0; }
-    .faq-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .faq-item p { color: var(--text-dim); font-size: 0.9rem; }
+    .faq-item {
+      padding: 1.25rem 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .faq-item:first-child { border-top: none; }
+    .faq-item h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .faq-item p {
+      color: var(--text-tertiary);
+      font-size: 0.9rem;
+      font-weight: 300;
+      line-height: 1.6;
+    }
 
     /* Footer */
-    footer { border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
-    footer a { color: var(--text-dim); text-decoration: none; }
-
-    /* Beta banner */
-    .beta-banner {
-      background: var(--accent-dim);
-      border: 1px solid var(--accent);
-      border-radius: 8px;
-      padding: 0.75rem 1.25rem;
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 2.5rem 0;
       text-align: center;
-      margin-bottom: 2rem;
-      font-size: 0.9rem;
     }
-    .beta-banner strong { color: var(--accent); }
+    footer .logo-mark { margin-bottom: 1rem; justify-content: center; }
+    footer .email {
+      color: var(--text-tertiary);
+      font-size: 0.875rem;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    footer .email:hover { color: var(--text-primary); }
+    footer .disclaimer {
+      margin-top: 0.75rem;
+      color: var(--text-quaternary);
+      font-size: 0.8rem;
+      font-weight: 300;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <nav>
-      <div class="logo">second<span>read</span>.me</div>
-      <div>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="logo-mark" style="text-decoration:none">
+        <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+          <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+        </svg>
+        <span class="logo-text">second<span class="accent">read</span></span>
+      </a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="mailto:reviewer@secondread.me">Contact</a>
+        <a href="mailto:hello@secondread.me" class="btn btn-ghost" style="padding: 7px 14px;">Contact</a>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <!-- Hero -->
-    <div class="hero">
-      <div class="beta-banner">
-        <strong>BETA:</strong> First 20 audits free. No signup required. Just send your repo URL.
-      </div>
-      <h1>You built your app with AI.<br><span class="highlight">We read the code so you don't have to.</span></h1>
-      <p>Get a plain-English report of what's costing you money, what breaks at scale, and what to tell a developer to fix — written for someone who can't read code.</p>
-      <div class="cta-group">
-        <a class="btn btn-primary" href="mailto:reviewer@secondread.me?subject=Audit%20my%20repo&body=Hi,%20please%20audit%20my%20repo:%20https://github.com/...">Get your free audit</a>
-        <a class="btn btn-secondary" href="#how-it-works">How it works</a>
-      </div>
+  <!-- Hero -->
+  <div class="container hero">
+    <div class="beta-banner">
+      <span class="dot"></span>
+      <span><strong>BETA</strong> &middot; First 20 audits free</span>
+    </div>
+    <h1>You built your app with AI.<br><span class="highlight">We read the code so you don't have to.</span></h1>
+    <p>Get a plain-English report of what's costing you money, what breaks at scale, and what to tell a developer to fix &mdash; written for someone who can't read code.</p>
+    <div class="cta-group">
+      <a class="btn btn-primary" href="mailto:hello@secondread.me?subject=Audit%20my%20repo&body=Hi,%20please%20audit%20my%20repo:%20https://github.com/...">Get your free audit</a>
+      <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
     </div>
   </div>
 
   <!-- How it works -->
-  <div class="container">
-    <div class="section" id="how-it-works">
-      <h2>How it works</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <h3>Send us your GitHub repo URL</h3>
-            <p>One link. No signup, no dashboard, no 14-day trial. Just email us the repo.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <h3>We scan the entire codebase</h3>
-            <p>Static analysis for security holes, hardcoded secrets, dependency bloat, and scaling risks. The same tools professional engineering teams use, translated into English.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <h3>You get a report you can forward</h3>
-            <p>Three sections: what's costing you money, what breaks at scale, what to fix today. Plus a contractor briefing you can copy-paste to any developer.</p>
-          </div>
+  <div class="container section" id="how-it-works">
+    <div class="section-label">How it works</div>
+    <h2>Three steps. One report. Zero jargon.</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Send us your GitHub repo URL</h3>
+          <p>One link. No signup, no dashboard, no 14-day trial. Just email us the repo.</p>
         </div>
       </div>
-
-      <!-- Sample report -->
-      <div class="preview">
-        <div class="preview-header">
-          <strong style="font-size: 0.9rem;">Sample audit report</strong>
-          <span class="preview-badge amber">YELLOW</span>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>We scan the entire codebase</h3>
+          <p>Static analysis for security holes, hardcoded secrets, dependency bloat, and scaling risks. The same tools professional engineering teams use, translated into English.</p>
         </div>
-        <div class="preview-issue">
-          <h4><span class="badge" style="background: #dc2626; color: white;">CRITICAL</span> Disabled CSRF protection on login</h4>
-          <p><strong>What:</strong> A login route has its security shield turned off, allowing attackers to send fake requests from a user's browser.</p>
-          <p><strong>Fix:</strong> Remove the <code>@csrf_exempt</code> decorator from <code>backend/accounts/views.py</code> line 57.</p>
-        </div>
-        <div class="preview-issue">
-          <h4><span class="badge" style="background: #ca8a04; color: white;">MEDIUM</span> No rate limiting on API</h4>
-          <p><strong>What:</strong> The server has no limit on how many requests a single user can send per minute. A bot could overwhelm the server.</p>
-          <p><strong>Fix:</strong> Add <code>DEFAULT_THROTTLE_CLASSES</code> in <code>settings.py</code> to limit requests per user.</p>
-        </div>
-        <div class="preview-issue">
-          <h4><span class="badge" style="background: #dc2626; color: white;">HIGH</span> Hardcoded fallback secret key</h4>
-          <p><strong>What:</strong> The app has a fallback encryption key written directly in the code. If the secure env variable is missing, the app uses a known key.</p>
-          <p><strong>Fix:</strong> Remove the default value in <code>settings.py</code> and crash if the env variable is missing.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>You get a report you can forward</h3>
+          <p>Three sections: what's costing you money, what breaks at scale, what to fix today. Plus a contractor briefing you can copy-paste to any developer.</p>
         </div>
       </div>
     </div>
 
-    <!-- Pricing -->
-    <div class="section" id="pricing">
-      <h2>Pricing</h2>
-      <p style="color: var(--text-dim); font-size: 0.95rem;">No subscriptions to start. Pay per audit. Upgrade only when it's worth it.</p>
-      <div class="pricing-grid">
-        <div class="price-card">
-          <h3>Snapshot Audit</h3>
-          <div class="price">€49<small> one-off</small></div>
-          <p>A complete audit of your repo right now. One report, delivered in 24 hours.</p>
-          <ul>
-            <li>Full codebase scan</li>
-            <li>Security vulnerability check</li>
-            <li>Hardcoded secret detection</li>
-            <li>Dependency cost analysis</li>
-            <li>Plain-English report (HTML + PDF)</li>
-            <li>Contractor briefing — copy-paste to any dev</li>
-          </ul>
-          <a class="btn btn-secondary" href="mailto:reviewer@secondread.me?subject=Snapshot%20audit&body=Hi,%20I'd%20like%20a%20snapshot%20audit%20of%20my%20repo:%20https://github.com/...">Get a snapshot</a>
+    <!-- Sample report -->
+    <div class="preview">
+      <div class="preview-header">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="title">audit_report.html</span>
+        <div style="width: 40px"></div>
+      </div>
+      <div class="preview-body">
+        <div class="preview-health">
+          <span class="badge amber">CAUTION</span>
+          <span class="summary">3 issues found &middot; 1 critical &middot; fix before launch</span>
         </div>
-        <div class="price-card featured">
-          <h3>Monitoring</h3>
-          <div class="price">€199<small>/month</small></div>
-          <p>Re-audits on every push. New issues flagged before they hit production.</p>
-          <ul>
-            <li>Everything in Snapshot</li>
-            <li>Automatic re-audit on every git push</li>
-            <li>Slack/email alerts on new findings</li>
-            <li>Cost tracking over time</li>
-            <li>Priority support</li>
-          </ul>
-          <a class="btn btn-primary" href="mailto:reviewer@secondread.me?subject=Monitoring%20subscription&body=Hi,%20I'd%20like%20to%20set%20up%20monitoring%20for%20my%20repo:%20https://github.com/...">Start monitoring</a>
+        <div class="preview-issue">
+          <div class="preview-issue-header">
+            <span class="sev critical">CRITICAL</span>
+            <h4>Disabled CSRF protection on login</h4>
+          </div>
+          <p><strong style="color: var(--text-secondary)">What:</strong> A login route has its security shield turned off, allowing attackers to send fake requests from a user's browser.</p>
+          <p><strong style="color: var(--text-secondary)">Fix:</strong> Remove the <code>@csrf_exempt</code> decorator from <code>backend/accounts/views.py</code> line 57.</p>
+        </div>
+        <div class="preview-issue">
+          <div class="preview-issue-header">
+            <span class="sev medium">MEDIUM</span>
+            <h4>No rate limiting on API</h4>
+          </div>
+          <p><strong style="color: var(--text-secondary)">What:</strong> The server has no limit on how many requests a single user can send per minute. A bot could overwhelm the server.</p>
+          <p><strong style="color: var(--text-secondary)">Fix:</strong> Add <code>DEFAULT_THROTTLE_CLASSES</code> in <code>settings.py</code> to limit requests per user.</p>
+        </div>
+        <div class="preview-issue">
+          <div class="preview-issue-header">
+            <span class="sev high">HIGH</span>
+            <h4>Hardcoded fallback secret key</h4>
+          </div>
+          <p><strong style="color: var(--text-secondary)">What:</strong> The app has a fallback encryption key written directly in the code. If the secure env variable is missing, the app uses a known key.</p>
+          <p><strong style="color: var(--text-secondary)">Fix:</strong> Remove the default value in <code>settings.py</code> and crash if the env variable is missing.</p>
+        </div>
+        <div class="preview-briefing">
+          <div class="label">Contractor briefing &mdash; copy-paste to a developer:</div>
+          <ol>
+            <li>Remove <code>@csrf_exempt</code> on line 57 of <code>views.py</code></li>
+            <li>Add throttling: <code>DEFAULT_THROTTLE_RATES</code> = 100/min per user</li>
+            <li>Remove fallback <code>SECRET_KEY</code> in <code>settings.py</code>, fail if env missing</li>
+          </ol>
         </div>
       </div>
     </div>
-
-    <!-- FAQ -->
-    <div class="section" id="faq">
-      <h2>Questions</h2>
-      <div class="faq-item">
-        <h3>Do you need access to my code?</h3>
-        <p>We clone the public repo, scan it locally, and delete it after generating the report. For private repos, you grant read-only access via a GitHub collaborator invite. We never store your code.</p>
-      </div>
-      <div class="faq-item">
-        <h3>What if my code is clean?</h3>
-        <p>Then the report says so. We don't invent problems. If the audit finds nothing critical, you get a clean bill of health and the confidence to keep shipping. Either way, you know.</p>
-      </div>
-      <div class="faq-item">
-        <h3>Is this just an AI wrapper around linters?</h3>
-        <p>No. We run real static analysis tools (Semgrep, Bandit, secret scanners) that professional security teams use. The AI layer translates the raw output into English a non-technical founder can act on. The analysis is real. The translation is the product.</p>
-      </div>
-      <div class="faq-item">
-        <h3>What languages do you support?</h3>
-        <p>Python, JavaScript, TypeScript, Go, Ruby, PHP, Java, and more. If your app was built with Bolt, Lovable, Cursor, or any AI coding tool, we can audit it.</p>
-      </div>
-      <div class="faq-item">
-        <h3>How long does an audit take?</h3>
-        <p>Most reports are delivered within 24 hours. Larger repos (500K+ lines) may take 48 hours. The beta is free — try it and see.</p>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer>
-      <p>&copy; 2026 SecondRead. <a href="mailto:reviewer@secondread.me">reviewer@secondread.me</a></p>
-      <p style="margin-top: 0.5rem;">Reports are based on static analysis at a point in time. Code changes fast — that's why monitoring exists.</p>
-    </footer>
   </div>
+
+  <!-- Pricing -->
+  <div class="container section" id="pricing">
+    <div class="section-label">Pricing</div>
+    <h2>Pay per audit. Upgrade when it's worth it.</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Snapshot Audit</h3>
+        <div class="price">&euro;49<small> one-off</small></div>
+        <p class="desc">A complete audit of your repo right now. One report, delivered in 24 hours.</p>
+        <ul>
+          <li>Full codebase scan</li>
+          <li>Security vulnerability check</li>
+          <li>Hardcoded secret detection</li>
+          <li>Dependency cost analysis</li>
+          <li>Plain-English report (HTML + PDF)</li>
+          <li>Contractor briefing &mdash; copy-paste to any dev</li>
+        </ul>
+        <a class="btn btn-ghost btn-full" href="mailto:hello@secondread.me?subject=Snapshot%20audit&body=Hi,%20I'd%20like%20a%20snapshot%20audit%20of%20my%20repo:%20https://github.com/...">Get a snapshot</a>
+      </div>
+      <div class="price-card featured">
+        <h3>Monitoring</h3>
+        <div class="price">&euro;199<small>/month</small></div>
+        <p class="desc">Re-audits on every push. New issues flagged before they hit production.</p>
+        <ul>
+          <li>Everything in Snapshot</li>
+          <li>Automatic re-audit on every git push</li>
+          <li>Email alerts on new findings</li>
+          <li>Cost tracking over time</li>
+          <li>Priority support</li>
+        </ul>
+        <a class="btn btn-primary btn-full" href="mailto:hello@secondread.me?subject=Monitoring%20subscription&body=Hi,%20I'd%20like%20to%20set%20up%20monitoring%20for%20my%20repo:%20https://github.com/...">Start monitoring</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="container section" id="faq">
+    <div class="section-label">FAQ</div>
+    <h2>Questions</h2>
+    <div class="faq-item">
+      <h3>Do you need access to my code?</h3>
+      <p>We clone the public repo, scan it locally, and delete it after generating the report. For private repos, you grant read-only access via a GitHub collaborator invite. We never store your code.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What if my code is clean?</h3>
+      <p>Then the report says so. We don't invent problems. If the audit finds nothing critical, you get a clean bill of health and the confidence to keep shipping. Either way, you know.</p>
+    </div>
+    <div class="faq-item">
+      <h3>Is this just an AI wrapper around linters?</h3>
+      <p>No. We run real static analysis tools (Semgrep, Bandit, secret scanners) that professional security teams use. The AI layer translates the raw output into English a non-technical founder can act on. The analysis is real. The translation is the product.</p>
+    </div>
+    <div class="faq-item">
+      <h3>What languages do you support?</h3>
+      <p>Python, JavaScript, TypeScript, Go, Ruby, PHP, Java, and more. If your app was built with Bolt, Lovable, Cursor, or any AI coding tool, we can audit it.</p>
+    </div>
+    <div class="faq-item">
+      <h3>How long does an audit take?</h3>
+      <p>Most reports are delivered within 24 hours. Larger repos (500K+ lines) may take 48 hours. The beta is free &mdash; try it and see.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="logo-mark" style="justify-content: center;">
+        <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+          <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+          <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+        </svg>
+        <span class="logo-text">second<span class="accent">read</span></span>
+      </div>
+      <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+      <p class="disclaimer">Reports are based on static analysis at a point in time. Code changes fast &mdash; that's why monitoring exists.</p>
+    </div>
+  </footer>
+
 </body>
 </html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Replit Code Review: What AI-Powered App Builders Get Wrong About Code Quality | SecondRead</title>
+    <meta name="description" content="Built your app with Replit Agent? Discover the hidden code quality issues AI app builders introduce — from hardcoded secrets to missing authentication. Get a plain-English Replit code review.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Replit Code Review: What AI-Powered App Builders Get Wrong About Code Quality">
+    <meta property="og:description" content="Discover the hidden code quality issues in Replit Agent-generated codebases. Learn what to check and get a plain-English Replit code review from SecondRead.">
+    <meta property="og:url" content="https://secondread.me/blog/replit-code-review">
+    <meta property="og:site_name" content="SecondRead">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="Replit Code Review: What AI-Powered App Builders Get Wrong About Code Quality">
+    <meta property="twitter:description" content="Discover the hidden code quality issues in Replit Agent-generated codebases. Get a plain-English audit from SecondRead.">
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-hover: #28282c;
+        --text-primary: #f7f8f8;
+        --text-secondary: #d0d6e0;
+        --text-tertiary: #8a8f98;
+        --text-quaternary: #62666d;
+        --brand: #5e6ad2;
+        --brand-bright: #7170ff;
+        --brand-hover: #828fff;
+        --green: #27a644;
+        --amber: #ca8a04;
+        --red: #dc2626;
+        --border-subtle: rgba(255,255,255,0.05);
+        --border-standard: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.12);
+      }
+
+     html { scroll-behavior: smooth; }
+
+     body {
+       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg);
+       color: var(--text-primary);
+       line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+     }
+
+     nav {
+       position: sticky;
+       top: 0;
+       z-index: 100;
+       background: rgba(8,9,10,0.85);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border-bottom: 1px solid var(--border-subtle);
+     }
+
+      .nav-inner {
+       max-width: 900px;
+       margin: 0 auto;
+       padding: 14px 0;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+      }
+
+      .logo-mark {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       text-decoration: none;
+     }
+
+      .logo-icon {
+       width: 28px;
+       height: 28px;
+       flex-shrink: 0;
+     }
+
+      .logo-text {
+       font-size: 1.05rem;
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       color: var(--text-primary);
+     }
+
+      .logo-text .accent { color: var(--brand-bright); }
+
+      .nav-links {
+       display: flex;
+       gap: 28px;
+       align-items: center;
+       font-size: 0.875rem;
+       }
+
+      .nav-links a {
+       color: var(--text-tertiary);
+       text-decoration: none;
+       font-weight: 500;
+       letter-spacing: -0.01em;
+       transition: color 0.15s;
+      }
+
+      .nav-links a:hover { color: var(--text-primary); }
+
+      .container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; }
+
+      .hero {
+       padding: 4rem 0 3rem;
+       text-align: center;
+     }
+
+      .breadcrumb {
+       display: inline-block;
+       font-size: 0.75rem;
+       color: var(--text-tertiary);
+       margin-bottom: 1.5rem;
+       text-decoration: none;
+      }
+
+      .breadcrumb:hover { color: var(--text-secondary); }
+
+     h1 {
+       font-size: clamp(2rem, 5vw, 3rem);
+       font-weight: 500;
+       line-height: 1.1;
+       letter-spacing: -0.02em;
+       margin-bottom: 1.5rem;
+       max-width: 600px;
+       margin-left: auto;
+       margin-right: auto;
+     }
+
+     h1 .highlight { color: var(--brand-bright); }
+
+     p {
+       font-size: 1.05rem;
+       font-weight: 300;
+       line-height: 1.7;
+       color: var(--text-tertiary);
+       margin-bottom: 1.25rem;
+      }
+
+     ul, ol {
+       margin-bottom: 1.25rem;
+       padding-left: 1.5rem;
+      }
+
+     li {
+       margin-bottom: 0.5rem;
+       color: var(--text-secondary);
+      }
+
+     strong {
+       color: var(--text-primary);
+       font-weight: 600;
+     }
+
+     h2 {
+       font-size: 1.75rem;
+       font-weight: 500;
+       letter-spacing: -0.02em;
+       margin-bottom: 1.5rem;
+       color: var(--text-primary);
+       padding-top: 2.5rem;
+      }
+
+     h3 {
+       font-size: 1.25rem;
+       font-weight: 600;
+       letter-spacing: -0.01em;
+       margin-bottom: 1rem;
+       color: var(--text-primary);
+      }
+
+     blockquote {
+       border-left: 4px solid var(--brand);
+       padding: 1rem 1.5rem;
+       margin: 2rem 0;
+       background: rgba(94,106,210,0.03);
+       color: var(--text-secondary);
+       font-style: italic;
+     }
+
+     code {
+       font-family: 'JetBrains Mono', ui-monospace, monospace;
+       font-size: 0.85rem;
+       background: rgba(255,255,255,0.05);
+       padding: 2px 6px;
+       border-radius: 4px;
+       color: var(--text-secondary);
+     }
+
+      .highlight-box {
+       background: rgba(94,106,210,0.08);
+       border: 1px solid rgba(94,106,210,0.2);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+       color: var(--brand-bright);
+       margin-bottom: 1rem;
+      }
+
+      .cta-button-wrapper {
+       text-align: center;
+       margin-top: 3rem;
+     }
+
+      .btn-primary {
+       display: inline-block;
+       background: var(--brand);
+       color: #fff;
+       padding: 10px 24px;
+       border-radius: 6px;
+       text-decoration: none;
+       font-weight: 500;
+       transition: all 0.15s;
+      }
+
+      .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+
+     footer {
+       border-top: 1px solid var(--border-subtle);
+       padding: 2.5rem 0;
+       margin-top: 4rem;
+      }
+
+      .footer-content {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 0.75rem;
+     }
+
+     footer .logo-mark {
+       text-decoration: none;
+       margin-bottom: 1rem;
+     }
+
+     footer .email {
+       color: var(--text-tertiary);
+       font-size: 0.875rem;
+       text-decoration: none;
+     }
+
+     footer .email:hover { color: var(--text-primary); }
+
+      .disclaimer {
+       color: var(--text-quaternary);
+       font-size: 0.8rem;
+      }
+    </style>
+</head>
+<body>
+
+<nav>
+   <div class="container nav-inner">
+     <a href="/" class="logo-mark" style="text-decoration:none">
+       <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+       <span class="logo-text">second<span class="accent">read</span></span>
+     </a>
+     <div class="nav-links">
+       <a href="#how-it-works">How it works</a>
+       <a href="#why">Why SecondRead</a>
+       <a href="#pricing">Pricing</a>
+       <a href="#faq">FAQ</a>
+       <a href="https://secondread.me" target="_blank">Audit My Code</a>
+     </div>
+   </div>
+</nav>
+
+<div class="container hero">
+   <p class="breadcrumb"><a href="https://secondread.me" style="color: var(--text-tertiary); text-decoration: none;">← Back to secondread.me</a></p>
+   <h1>Replit Code Review: <span class="highlight">What AI-Powered App Builders Get Wrong About Code Quality</span></h1>
+   <p>Replit Agent builds working apps from a text prompt — databases, authentication, API routes, the lot. But "working" and "production-ready" are different things. Here's what a Replit code review needs to uncover.</p>
+   <div class="cta-button-wrapper">
+     <a href="https://secondread.me" class="btn-primary">Get Your Replit Code Review</a>
+   </div>
+</div>
+
+<div class="container hero" style="padding: 3rem 0 5rem;">
+   <blockquote>Replit Agent generates full-stack apps that run on the first try. The server starts, the database connects, the routes respond. But the code that gets you to "it works" is not the code that keeps you safe in production.</blockquote>
+
+   <h2>The Replit Paradox: Full-Stack Speed, Fragile Foundations</h2>
+
+   <p>Replit has evolved from a browser-based IDE into an AI app builder. You describe what you want — "a SaaS app with user authentication, a dashboard, and Stripe payments" — and Replit Agent writes the code, sets up the database, configures the server, and deploys it. You can have a working app in minutes.</p>
+
+   <p>In 2026, Replit doubled down on this with its built-in Security Agent — a combination of AI model review, Semgrep static analysis, and HoundDog.ai vulnerability scanning. It runs a full codebase audit in about 15 minutes and flags security issues. For paid Replit users, this is genuinely useful.</p>
+
+   <p>But here's the problem: Replit Agent optimises for <em>getting it working</em>. The code runs. The features exist. The deployment succeeds. What it doesn't do is ensure the code is secure, maintainable, or scalable when real users and real attackers interact with it. And Replit's built-in Security Agent, while a step forward, outputs developer-focused findings — not plain-English explanations that a non-technical founder can act on.</p>
+
+   <p>This guide breaks down what a thorough <strong>Replit code review</strong> should uncover — the specific quality issues that AI app generation introduces and that surface-level inspection always misses.</p>
+
+   <div class="highlight-box">
+     <h3>What This Guide Covers</h3>
+     <ul style="margin-bottom: 0;">
+       <li>How Replit Agent's full-stack generation model creates unique code quality risks</li>
+       <li>6 specific issues to check in any Replit-built codebase</li>
+       <li>Why Replit's built-in Security Agent isn't enough for non-technical founders</li>
+       <li>A practical checklist for auditing Replit-generated code</li>
+       <li>How to get a plain-English audit without reading a single line of code</li>
+     </ul>
+   </div>
+
+   <h2 style="padding-top: 3rem;">What Replit Gets Right (And Why Founders Love It)</h2>
+
+   <p>Before diving into the problems, let's acknowledge what Replit does exceptionally well:</p>
+
+   <h3 style="padding-top: 1.5rem;">1. Genuine Full-Stack Generation</h3>
+
+   <p>Unlike component generators that produce frontend code only, Replit Agent writes the entire stack — backend routes, database schemas, authentication flows, API integrations, and deployment configuration. You describe a complete app and get a complete app.</p>
+
+   <h3 style="padding-top: 1rem;">2. Instant Environment Setup</h3>
+
+   <p>No local development environment to configure. No <code>npm install</code> failures. No Python version conflicts. Replit handles the infrastructure so you can focus on the product. This removes a massive barrier for non-technical founders.</p>
+
+   <h3 style="padding-top: 1rem;">3. Built-in Deployment</h3>
+
+   <p>Your app goes from prompt to deployed URL without leaving the browser. Replit handles hosting, domains, and SSL. For a founder who doesn't know what a reverse proxy is, this is transformative.</p>
+
+   <h3 style="padding-top: 1rem;">4. Built-in Security Agent</h3>
+
+   <p>Replit's Security Agent (available to paid users) runs Semgrep + HoundDog.ai static analysis alongside AI model review. It catches common vulnerabilities — SQL injection, XSS, hardcoded secrets — and outputs findings in about 15 minutes. This is more than most AI code generators offer.</p>
+
+   <div class="highlight-box">
+     <h3>The Catch</h3>
+     <p>Replit Agent generates apps that <em>run</em> but aren't <em>hardened</em>. The features work, the deployment succeeds, and the built-in scanner catches obvious vulnerabilities. But the code quality issues that cause outages, data loss, and security breaches in production — missing input validation, unprotected routes, N+1 queries, no error recovery — are exactly the issues that automated scanners don't flag and AI generators don't add unless you explicitly ask.</p>
+   </div>
+
+   <h2 style="padding-top: 3rem;">Issue #1: Hardcoded Environment Variables and Secrets</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app works perfectly in development. Database connects, API keys work, Stripe processes payments. You deploy to production and everything still works — until you need to rotate an API key, switch database providers, or set up a staging environment. Then you discover the key is hardcoded in five different files.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit makes it dangerously easy to hardcode secrets. The Replit environment has a Secrets tab for environment variables, but Replit Agent often inlines values directly in the code it generates:</p>
+
+   <ul>
+     <li><strong>API keys in source files</strong>: Stripe secret keys, OpenAI API keys, and database connection strings appear directly in <code>server.js</code> or <code>app.py</code> rather than being read from <code>process.env</code> or <code>os.environ</code>.</li>
+     <li><strong>Database URLs hardcoded</strong>: <code>mongoose.connect('mongodb://localhost:27017/myapp')</code> instead of <code>mongoose.connect(process.env.DATABASE_URL)</code>. Works in development, breaks in production, and exposes your database location to anyone reading the source.</li>
+     <li><strong>No <code>.env</code> file discipline</strong>: Replit Agent doesn't consistently use environment variables. Some routes read from <code>process.env</code>, others hardcode the same value. There's no single source of truth for configuration.</li>
+     <li><strong>Secrets in committed code</strong>: If you export your Replit project to GitHub, hardcoded secrets go with it. Anyone with repo access — including public repos — can read them.</li>
+   </ul>
+
+   <p>The built-in Security Agent catches some of these — it flags hardcoded secrets that match known patterns. But it doesn't catch configuration values that <em>should</em> be environment variables but aren't obviously secrets (like API URLs, feature flags, or rate limit thresholds).</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Search for hardcoded connection strings, API keys, and configuration values across all source files</li>
+     <li>Verify all secrets use environment variables (Replit Secrets tab or <code>.env</code>)</li>
+     <li>Check that exported/committed code doesn't contain real credentials</li>
+     <li>Identify configuration values that should be environment variables even if they're not technically secrets</li>
+   </ol>
+
+   <h2 style="padding-top: 3rem;">Issue #2: No Input Validation on Generated Routes</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app has API routes for creating users, submitting forms, and updating data. Everything works when you test with valid input. But when a user submits an empty form, or a string where a number should be, or 10MB of data where 100KB is expected — the app crashes, the database gets corrupted, or the server hangs.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit Agent generates Express.js (Node) or Flask/FastAPI (Python) routes that handle the happy path. It rarely generates input validation because you didn't explicitly ask for it. Common patterns:</p>
+
+   <ul>
+     <li><strong>No request body validation</strong>: <code>app.post('/users', (req, res) => { db.users.create(req.body) })</code> — whatever the client sends goes straight into the database. No schema validation, no field checking, no type enforcement.</li>
+     <li><strong>No query parameter sanitisation</strong>: Routes that accept query parameters (<code>?limit=10&offset=0</code>) don't validate that the values are numbers, don't enforce maximums, and don't sanitise strings.</li>
+     <li><strong>No file upload restrictions</strong>: If the app accepts file uploads, there's no check on file type, file size, or file content. A user can upload a 2GB file and crash the server.</li>
+     <li><strong>No rate limiting</strong>: Generated routes have no rate limiting. Anyone can hit <code>/api/login</code> 10,000 times per second. This is how brute-force attacks work.</li>
+   </ul>
+
+   <p>Replit's Security Agent catches SQL injection and XSS — the obvious injection vulnerabilities. But it doesn't flag the absence of input validation, which is a broader problem. An endpoint that accepts any input without validation isn't just insecure — it's unstable. Bad data in, corrupted database out.</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Audit every API route for input validation — body, query, and params</li>
+     <li>Check for validation libraries (Zod, Joi, express-validator, Pydantic) — are they actually used?</li>
+     <li>Verify file upload routes restrict type, size, and content</li>
+     <li>Identify routes that need rate limiting (authentication, form submission, API endpoints)</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #3: Synchronous Blocking Operations in Async Contexts</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app works fine with a few users. But as traffic grows, it slows down dramatically. The server becomes unresponsive. Pages take 10+ seconds to load. Eventually, the server crashes with an out-of-memory error or a timeout.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit Agent generates code that works, but it doesn't always understand the difference between synchronous and asynchronous operations — especially in Node.js and Python async contexts:</p>
+
+   <ul>
+     <li><strong>Synchronous file operations in async handlers</strong>: <code>fs.readFileSync()</code> inside an Express route blocks the entire event loop. While that file reads, no other request can be processed. One slow file read = the whole server hangs.</li>
+     <li><strong>Heavy computation in request handlers</strong>: JSON parsing of large payloads, image processing, or data transformation done synchronously in the request handler. Each expensive operation blocks all other users.</li>
+     <li><strong>Awaiting inside loops</strong>: <code>for (const id of ids) { const item = await fetchItem(id) }</code> — sequential awaits when <code>Promise.all()</code> would parallelise them. 10 items × 200ms each = 2 seconds, when it could be 200ms total.</li>
+     <li><strong>Mixed async patterns in Python</strong>: Replit Agent sometimes generates Flask code (synchronous) when FastAPI (asynchronous) would be appropriate, or mixes <code>async</code> and <code>sync</code> handlers in the same app — causing subtle deadlocks.</li>
+   </ul>
+
+   <p>These issues don't show up in development because you're the only user. They appear in production when you have concurrent users — exactly when they're most expensive to fix.</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Search for synchronous operations (<code>readFileSync</code>, <code>writeFileSync</code>) in async handlers</li>
+     <li>Identify sequential awaits that could be parallelised with <code>Promise.all</code></li>
+     <li>Check for heavy computation in request handlers that should be offloaded</li>
+     <li>Audit Python apps for mixed sync/async patterns that could cause deadlocks</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #4: Missing Authentication on Internal API Routes</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app has user authentication — login, signup, sessions. But when you look at the API routes, some of them don't check whether the user is logged in. <code>/api/users/delete</code> can be called by anyone. <code>/api/admin/stats</code> is accessible without admin privileges. <code>/api/internal/sync</code> is wide open to the internet.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit Agent generates authentication flows when you ask for them. But it doesn't consistently apply authentication middleware to every route that needs it:</p>
+
+   <ul>
+     <li><strong>Auth middleware applied selectively</strong>: The login and signup routes have auth middleware. The data routes don't. Replit Agent generated auth as a feature, not as a cross-cutting concern.</li>
+     <li><strong>No authorisation checks</strong>: Even when authentication exists (the user is logged in), there's no authorisation (is this user allowed to access <em>this</em> resource?). User A can delete User B's data by calling <code>/api/users/:id/delete</code> with B's ID.</li>
+     <li><strong>Admin routes unprotected</strong>: Internal routes for admin functions, data sync, or maintenance are often generated without any authentication. They're assumed to be "internal" but are deployed as public endpoints.</li>
+     <li><strong>API keys not validated</strong>: If the app has an API for external consumers, API key validation is often missing. Anyone who guesses or discovers an endpoint can call it.</li>
+   </ul>
+
+   <p>Replit's Security Agent flags missing authentication on some routes, but it doesn't understand the <em>business logic</em> of which routes should be protected. A route like <code>/api/users/profile</code> might require authentication, but <code>/api/users/:id/data</code> needs authorisation — and the Security Agent can't tell the difference.</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Map every API route and verify authentication middleware is applied</li>
+     <li>Check for authorisation — can User A access User B's data?</li>
+     <li>Identify admin/internal routes that are publicly accessible</li>
+     <li>Verify API key validation for external-facing endpoints</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #5: Database Queries Without Indexes or Pagination</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app is fast at first. The database has a few dozen records, queries return instantly. But as your app grows — hundreds, then thousands of records — everything slows down. The dashboard takes 30 seconds to load. The API times out. The database CPU hits 100%. You're paying for a bigger database instance, but it's still slow.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit Agent generates database queries that work — they return the right data. But they're not optimised for scale:</p>
+
+   <ul>
+     <li><strong>N+1 query problems</strong>: The code fetches a list of items, then for each item, fetches its related data in a separate query. 100 items = 101 queries. This is the #1 performance killer in AI-generated code.</li>
+     <li><strong>No pagination</strong>: <code>db.users.find()</code> returns <em>all</em> users. With 10,000 users, that's 10,000 records loaded into memory on every request. The route should use <code>.limit(20).skip(offset)</code> or cursor-based pagination.</li>
+     <li><strong>Missing database indexes</strong>: Queries filter on fields that have no index. <code>db.users.find({ email: req.body.email })</code> does a full collection scan. Without an index on <code>email</code>, this gets slower with every new user.</li>
+     <li><strong>No query result limits</strong>: Aggregation queries (<code>$group</code>, <code>$lookup</code>) process the entire collection without limits. As data grows, these queries consume exponential memory and CPU.</li>
+   </ul>
+
+   <p>None of these issues show up in development. They appear gradually as your data grows — and by the time you notice, you've already lost users to slow load times.</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Search for N+1 query patterns — loops with await inside, or sequential fetches</li>
+     <li>Check that list endpoints implement pagination (limit + offset or cursor)</li>
+     <li>Identify queries filtering on unindexed fields — recommend indexes</li>
+     <li>Audit aggregation queries for memory and CPU safety at scale</li>
+   </ol>
+
+   <h2 style="padding-top: 3.5rem;">Issue #6: No Error Recovery or Graceful Degradation</h2>
+
+   <h3>The Symptom</h3>
+
+   <p>Your Replit Agent app works when everything is healthy. But when the database goes down for maintenance, when a third-party API returns a 500, when a payment processor times out — the app doesn't show a friendly error message. It crashes. The user sees a stack trace or a blank page. Sometimes the server doesn't recover even after the underlying service comes back.</p>
+
+   <h3>What's Actually Wrong</h3>
+
+   <p>Replit Agent generates code for the happy path. Error handling is an afterthought — when it exists at all, it's usually a generic <code>catch (err) { console.log(err) }</code> that logs the error and... does nothing else:</p>
+
+   <ul>
+     <li><strong>Unhandled promise rejections</strong>: Async operations that fail don't have try/catch blocks. The rejection propagates up and crashes the process — taking down the entire server.</li>
+     <li><strong>No user-facing error messages</strong>: When something fails, the API returns a 500 with no body, or the frontend shows a blank page. No "something went wrong, try again" message. No error code for support to reference.</li>
+     <li><strong>No retry logic</strong>: External API calls (Stripe, OpenAI, email services) fail and there's no retry. A transient network error becomes a permanent failure for that user.</li>
+     <li><strong>No circuit breakers</strong>: When a downstream service is down, the app keeps trying to call it — wasting resources and delaying every request. A circuit breaker would fail fast and return a fallback response.</li>
+     <li><strong>No graceful shutdown</strong>: When the server stops (deploy, restart, crash), in-flight requests are dropped. No drain period, no connection cleanup, no state saving.</li>
+   </ul>
+
+   <p>This is the difference between an app that <em>works</em> and an app that <em>stays working</em>. Replit Agent gets you to the first. A code review gets you to the second.</p>
+
+   <h3>How a Replit Code Review Catches It</h3>
+
+   <ol>
+     <li>Audit every async operation for try/catch and error propagation</li>
+     <li>Check that API errors produce user-facing messages, not blank pages</li>
+     <li>Identify external API calls that need retry logic with exponential backoff</li>
+     <li>Verify the app degrades gracefully when dependencies fail</li>
+     <li>Check for unhandled rejection/exception handlers at the process level</li>
+   </ol>
+
+   <div class="highlight-box">
+     <h3>Additional Risks in Replit-Built Codebases</h3>
+
+     <p>Beyond these six core issues, a thorough Replit code review should also check for:</p>
+
+     <ul style="margin-bottom: 1rem; margin-left: 1.5rem;">
+       <li><strong>CORS configuration</strong>: Replit Agent often sets <code>Access-Control-Allow-Origin: *</code> — allowing any website to call your API. Fine for development, dangerous in production.</li>
+       <li><strong>No environment separation</strong>: The same code runs in development and production with no feature flags or environment-specific configuration.</li>
+       <li><strong>Missing health check endpoints</strong>: No <code>/health</code> route for monitoring. The platform can't tell if your app is alive without making a real request.</li>
+       <li><strong>Unbounded logging</strong>: <code>console.log</code> everywhere, with no log levels, no rotation, and no structured format. In production, you can't find the signal in the noise.</li>
+     </ul>
+   </div>
+
+   <h2 style="padding-top: 3rem;">But Doesn't Replit Have a Built-in Security Agent?</h2>
+
+   <p>Yes — and it's a genuinely good feature. If you're a paid Replit user, the Security Agent runs Semgrep + HoundDog.ai static analysis and AI model review on your codebase. It catches common vulnerabilities: SQL injection, XSS, hardcoded secrets, known insecure dependencies. It's better than nothing.</p>
+
+   <p>But it has limitations that matter if you're a non-technical founder:</p>
+
+   <h3 style="padding-top: 1.5rem;">1. The Output Is for Developers</h3>
+
+   <p>The Security Agent outputs findings in developer language: "CWE-89: SQL Injection in <code>server.js:42</code>". If you can read code, that's useful. If you're a non-technical founder, "CWE-89" tells you nothing. You don't know what SQL injection is, why it matters, or what to do about it. You need someone to translate.</p>
+
+   <h3 style="padding-top: 1rem;">2. It Only Catches Security Issues, Not Quality Issues</h3>
+
+   <p>The Security Agent scans for vulnerabilities. It doesn't check for the six issues above — missing input validation, N+1 queries, no pagination, no error recovery, missing authorisation, synchronous blocking. These aren't security vulnerabilities in the traditional sense, but they cause outages, data loss, and performance collapses that are just as damaging as a breach.</p>
+
+   <h3 style="padding-top: 1rem;">3. It Only Works Within Replit</h3>
+
+   <p>The Security Agent scans code that's running on Replit. If you've exported your project to GitHub, deployed it elsewhere, or integrated it with external services, the Security Agent doesn't cover that. Your audit is only as good as what Replit can see.</p>
+
+   <h3 style="padding-top: 1rem;">4. It's Only Available to Paid Users</h3>
+
+   <p>If you're on the free tier — which many founders are when they're validating an idea — you don't get the Security Agent at all. You're flying blind.</p>
+
+   <h3 style="padding-top: 1rem;">5. It Doesn't Explain Why It Matters</h3>
+
+   <p>The Security Agent tells you <em>what</em> is wrong. It doesn't tell you <em>why it matters in business terms</em>. "SQL injection vulnerability" doesn't convey "a user could delete your entire database." "Missing rate limiting" doesn't convey "someone could brute-force your login and take over user accounts." You need the translation, not just the finding.</p>
+
+   <p>This is where a plain-English <strong>Replit code review</strong> fills the gap. It covers security <em>and</em> quality. It explains issues in terms a founder can act on. And it works regardless of where your code is hosted.</p>
+
+   <h2 style="padding-top: 3rem;">Why Standard Tools Miss These Issues</h2>
+
+   <p>If you're thinking "Replit's Security Agent will catch these problems" — it won't. Here's why:</p>
+
+   <p><strong>Semgrep and HoundDog.ai catch known vulnerability patterns.</strong> They flag SQL injection, XSS, hardcoded secrets — the OWASP Top 10. They don't flag missing input validation (too broad), N+1 queries (too context-dependent), missing pagination (not a vulnerability), or absent error recovery (not a security issue).</p>
+
+   <p><strong>Replit's build checks verify the app runs.</strong> The deployment succeeds, the server starts, the routes respond. None of these checks verify that the app is secure, scalable, or resilient when things go wrong.</p>
+
+   <p><strong>AI model review catches what it's trained to catch.</strong> Replit's AI review is good at identifying common vulnerability patterns. It's less good at architectural issues, performance anti-patterns, and the kind of subtle "this works but will break at scale" problems that experienced engineers spot.</p>
+
+   <p>A real <strong>Replit code review</strong> requires understanding what the code is <em>supposed to do</em>, how it behaves under load and failure, and whether the architecture will hold up when real users interact with it — not just whether it passes a security scanner.</p>
+
+   <h2 style="padding-top: 3rem;">SecondRead: Plain-English Replit Code Reviews</h2>
+
+   <p>This is exactly what SecondRead does. We audit AI-generated codebases — including Replit Agent-built projects — and translate the findings into plain English. No jargon. No cryptic CWE numbers. Just clear explanations of what's broken, how severe it is, and what to do about it.</p>
+
+   <h3 style="padding-top: 1.5rem;">Our process:</h3>
+
+   <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+     <li>Send us your GitHub repo link (public or private — exported from Replit or hosted anywhere)</li>
+     <li>We scan for all six issue categories above — plus security vulnerabilities, performance problems, and architectural inconsistencies</li>
+     <li>You receive a plain-English report with severity ratings, clear explanations, and specific fix recommendations</li>
+     <li>Each finding explains <em>why</em> it matters in terms a non-technical founder can understand</li>
+   </ol>
+
+   <p>You don't need to read the code. You don't need to know what an N+1 query is. You just need to know: "this route lets anyone delete user data" or "this database query will crash your app when you have 1,000 users."</p>
+
+   <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center;">
+     <a href="https://secondread.me" class="btn-primary">Get a Plain-English Replit Code Review</a>
+   </div>
+
+   <h3 style="padding-top: 2.5rem; margin-top: 2rem;">Quick Replit Audit Checklist: Run This Today</h3>
+
+   <p>If you want to check the most critical issues yourself before getting a full audit, run through this checklist:</p>
+
+   <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+     <li style="font-weight: 600;">✅ Are there any hardcoded API keys, database URLs, or secrets in your source files?</li>
+     <li style="font-weight: 600;">✅ Do your API routes validate request bodies before writing to the database?</li>
+     <li style="font-weight: 600;">✅ Is authentication middleware applied to every route that needs it?</li>
+     <li style="font-weight: 600;">✅ Can User A access User B's data by changing an ID in the URL?</li>
+     <li style="font-weight: 600;">✅ Do list endpoints have pagination, or do they return everything?</li>
+     <li style="font-weight: 600;">✅ Are there loops with <code>await</code> inside that could be parallelised?</li>
+     <li style="font-weight: 600;">✅ Does the app show a friendly error message when the database is down?</li>
+     <li style="font-weight: 600;">✅ Is CORS set to <code>*</code> when it should be restricted to your domain?</li>
+   </ol>
+
+   <p><strong>Or let SecondRead do it all.</strong> We'll run a comprehensive audit across all these categories and more, delivering a plain-English report that tells you exactly what needs fixing — in priority order.</p>
+
+   <h2 style="padding-top: 3rem;">The Bottom Line for Founders Building with Replit</h2>
+
+   <p>Replit is one of the best tools for going from idea to deployed app. The speed is genuinely remarkable — what used to take weeks now takes minutes. For validation, prototyping, and getting something in front of users, it's hard to beat.</p>
+
+   <p>But a working app is not a production app. The same speed that makes Replit powerful also means the code hasn't been scrutinised. Input validation, authentication, database performance, error recovery — these aren't features Replit Agent forgets to add. They're concerns it doesn't know you need, because you didn't ask for them.</p>
+
+   <p>Replit's built-in Security Agent is a good start, but it's designed for developers who can read findings and act on them. If you're a non-technical founder, you need more than "CWE-89 at line 42." You need to know: "a user could delete your entire database, and here's how to stop them."</p>
+
+   <p>A quality <strong>Replit code review</strong> isn't about replacing Replit or questioning its output. It's about verifying that what Replit Agent generated is actually safe, secure, and scalable when real users interact with it. The app runs. A code review confirms whether it will keep running.</p>
+
+   <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; text-align: center;">
+     <p style="margin-bottom: 1rem;">Get a plain-English <strong>Replit code review</strong> before your users find the gaps for you. The report we generate will tell you exactly what's broken, how severe it is, and how to fix it — with no technical expertise required on your end.</p>
+     <a href="https://secondread.me" class="btn-primary">Audit My Replit Codebase at SecondRead</a>
+   </div>
+
+</div>
+
+<footer>
+   <div class="container footer-content">
+     <div style="display: inline-flex; margin-bottom: 1rem;">
+       <svg viewBox="0 0 100 100" fill="none" style="width: 35px; height: 35px; display: block;">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+     </div>
+     <a href="https://secondread.me" style="text-decoration: none; font-size: 1rem; font-weight: 600;">second<span style="color: var(--brand-bright);">read</span></a>
+     <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+     <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
+   </div>
+</footer>
+
+</body>
+</html>

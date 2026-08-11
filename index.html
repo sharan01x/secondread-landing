@@ -148,6 +148,7 @@
       justify-content: center;
       flex-wrap: wrap;
     }
+    .btn[data-tier] { cursor: pointer; }
 
     /* Beta banner */
     .beta-banner {
@@ -436,6 +437,8 @@
     }
     .crypto-instructions a { color: var(--brand-bright); text-decoration: none; }
     .crypto-instructions a:hover { text-decoration: underline; }
+    .crypto-payment details summary::-webkit-details-marker { display: none; }
+    .crypto-payment details[open] summary svg { transform: rotate(180deg); }
     .launch-badge {
       display: inline-block;
       font-size: 0.7rem;
@@ -635,6 +638,7 @@
         <a href="#how-it-works">How it works</a>
         <a href="#why">Why SecondRead</a>
         <a href="#pricing">Pricing</a>
+        <a href="/blog/">Blog</a>
         <a href="#faq">FAQ</a>
         <a href="mailto:hello@secondread.me" class="btn btn-ghost" style="padding: 7px 14px;">Contact</a>
       </div>
@@ -645,12 +649,12 @@
   <div class="container hero">
     <div class="beta-banner">
       <span class="dot"></span>
-      <span><strong>BETA</strong> &middot; First 20 audits free</span>
+      <span><strong>BETA</strong> &middot; Launch pricing — first 100 audits</span>
     </div>
     <h1>You built your app with AI.<br><span class="highlight">We read the code so you don't have to.</span></h1>
     <p>The only code audit built for founders, not developers. Static analysis translated into plain English &mdash; what's costing you money, what breaks at scale, and what to fix today.</p>
     <div class="cta-group">
-      <a class="btn btn-primary" href="mailto:hello@secondread.me?subject=Audit%20my%20repo&body=Hi,%20please%20audit%20my%20repo:%20https://github.com/...">Get your free audit</a>
+      <a class="btn btn-primary" data-tier="standard">Get Your Audit</a>
       <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
     </div>
   </div>
@@ -755,6 +759,8 @@
     </div>
 
     <!-- Comparison table -->
+    <h3 style="font-size: 1.15rem; font-weight: 500; margin-top: 2.5rem; margin-bottom: 0.5rem; letter-spacing: -0.01em;">How SecondRead compares</h3>
+    <p style="color: var(--text-tertiary); font-size: 0.9rem; font-weight: 300; line-height: 1.6; margin-bottom: 0;">Most code-quality tools are built for developers who already know what "CWE-79" means. Here's how we stack up against the alternatives — from the perspective of a founder who just needs to know what to fix.</p>
     <table class="compare-table">
       <thead>
         <tr>
@@ -842,7 +848,7 @@
           <li>Estimated time to fix each issue</li>
           <li>Upgrade CTA for full report</li>
         </ul>
-        <a class="btn btn-ghost btn-full" href="mailto:hello@secondread.me?subject=Free%20teaser%20audit&body=Hi,%20I'd%20like%20a%20free%20teaser%20audit%20of%20my%20repo:%20https://github.com/...">Get your free teaser</a>
+        <a class="btn btn-ghost btn-full" data-tier="teaser">Get Your Free Teaser</a>
       </div>
       <div class="price-card featured">
         <div class="launch-badge">Launch price</div>
@@ -859,7 +865,7 @@
           <li>Contractor briefing &mdash; copy-paste to any dev</li>
           <li>30-day dashboard access</li>
         </ul>
-        <a class="btn btn-primary btn-full" href="mailto:hello@secondread.me?subject=Standard%20audit&body=Hi,%20I'd%20like%20a%20standard%20audit%20of%20my%20repo:%20https://github.com/...">Get a standard audit</a>
+        <a class="btn btn-primary btn-full" data-tier="standard">Get A Standard Audit</a>
       </div>
       <div class="price-card">
         <div class="launch-badge">Launch price</div>
@@ -874,29 +880,37 @@
           <li>Deep-dive on security posture</li>
           <li>Follow-up email support (30 days)</li>
         </ul>
-        <a class="btn btn-ghost btn-full" href="mailto:hello@secondread.me?subject=Comprehensive%20audit%20+%20call&body=Hi,%20I'd%20like%20a%20comprehensive%20audit%20with%20consultation%20call%20for%20my%20repo:%20https://github.com/...">Book comprehensive audit</a>
+        <a class="btn btn-ghost btn-full" data-tier="comprehensive">Book Comprehensive Audit</a>
       </div>
     </div>
     <p class="pricing-note">Launch pricing for first 100 audits. Standard rises to &euro;149, Comprehensive to &euro;299 after launch period. <a href="mailto:hello@secondread.me?subject=Enterprise%20pricing">Bulk/agency pricing available &mdash; contact us.</a></p>
 
     <div class="crypto-payment">
-      <div class="crypto-payment-label">Pay with crypto</div>
-      <div class="crypto-payment-grid">
-        <div class="crypto-wallet">
-          <div class="crypto-wallet-label">USDC / USDT wallet address</div>
-          <div class="crypto-wallet-address">0x67bd1ee7ba4b25bc4c709b488094511330021785</div>
-          <div class="crypto-chains">
-            <strong>Supported chains:</strong> Base (recommended, low fees), Ethereum, Polygon, Arbitrum, Optimism<br>
-            <strong>Accepted tokens:</strong> USDC, USDT
-          </div>
-          <div class="crypto-instructions">
-            Send the matching amount to the address above, then email your transaction hash and GitHub repo URL to <a href="mailto:hello@secondread.me?subject=Crypto%20payment%20%E2%80%94%20audit&body=Hi,%20I've%20sent%20a%20crypto%20payment.%0A%0ATransaction%20hash:%20%0A%0AGitHub%20repo%20URL:%20%0A%0AAudit%20tier%20(Standard%20%E2%82%AC79%20/%20Comprehensive%20%E2%82%AC249):%20">hello@secondread.me</a>. We'll confirm on-chain and start your audit within 24 hours.
+      <details>
+        <summary style="cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);">Pay with crypto (USDC / USDT)</span>
+          <span style="font-size: 0.75rem; color: var(--text-tertiary);">&mdash; click to expand</span>
+          <svg style="margin-left: auto; flex-shrink: 0; transition: transform 0.2s;" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-tertiary);"/></svg>
+        </summary>
+        <div style="margin-top: 1.25rem;">
+          <div class="crypto-payment-grid">
+            <div class="crypto-wallet">
+              <div class="crypto-wallet-label">USDC / USDT wallet address</div>
+              <div class="crypto-wallet-address">0x67bd1ee7ba4b25bc4c709b488094511330021785</div>
+              <div class="crypto-chains">
+                <strong>Supported chains:</strong> Base (recommended, low fees), Ethereum, Polygon, Arbitrum, Optimism<br>
+                <strong>Accepted tokens:</strong> USDC, USDT
+              </div>
+              <div class="crypto-instructions">
+                Send the matching amount to the address above, then email your transaction hash and GitHub repo URL to <a href="mailto:hello@secondread.me?subject=Crypto%20payment%20%E2%80%94%20audit&body=Hi,%20I've%20sent%20a%20crypto%20payment.%0A%0ATransaction%20hash:%20%0A%0AGitHub%20repo%20URL:%20%0A%0AAudit%20tier%20(Standard%20%E2%82%AC79%20/%20Comprehensive%20%E2%82%AC249):%20">hello@secondread.me</a>. We'll confirm on-chain and start your audit within 24 hours.
+              </div>
+            </div>
+            <div class="crypto-qr">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=108x108&data=0x67bd1ee7ba4b25bc4c709b488094511330021785" alt="Wallet address QR code" width="108" height="108" />
+            </div>
           </div>
         </div>
-        <div class="crypto-qr">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=108x108&data=0x67bd1ee7ba4b25bc4c709b488094511330021785" alt="Wallet address QR code" width="108" height="108" />
-        </div>
-      </div>
+      </details>
     </div>
   </div>
 
@@ -922,7 +936,7 @@
     </div>
     <div class="faq-item">
       <h3>How long does an audit take?</h3>
-      <p>Most reports are delivered within 24 hours. Larger repos (500K+ lines) may take 48 hours. The beta is free &mdash; try it and see.</p>
+      <p>Most reports are delivered within 24 hours. Larger repos (500K+ lines) may take 48 hours.</p>
     </div>
   </div>
 
@@ -938,10 +952,60 @@
         </svg>
         <span class="logo-text">second<span class="accent">read</span></span>
       </div>
-      <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+      <div style="display: flex; gap: 20px; font-size: 0.825rem;">
+        <a href="/blog/" style="color: var(--text-tertiary); text-decoration: none; transition: color 0.15s;">Blog</a>
+        <a href="mailto:hello@secondread.me" style="color: var(--text-tertiary); text-decoration: none; transition: color 0.15s;">Contact</a>
+      </div>
+      <a class="email" href="mailto:hello@secondread.me" style="display:none;">hello@secondread.me</a>
       <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
     </div>
   </footer>
+
+  <script>
+    (function() {
+      // API base URL — change this when deploying to a different server
+      var API_BASE = 'http://localhost:8000';
+
+      function redirectToCheckout(tier) {
+        // For free teaser, go directly to the submit form
+        if (tier === 'teaser') {
+          window.location.href = API_BASE + '/submit?tier=teaser';
+          return;
+        }
+
+        // Create a Stripe Checkout session via the API
+        fetch(API_BASE + '/api/v1/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier: tier })
+        })
+        .then(function(resp) {
+          if (!resp.ok) throw new Error('Checkout request failed');
+          return resp.json();
+        })
+        .then(function(data) {
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            throw new Error('No checkout URL returned');
+          }
+        })
+        .catch(function(err) {
+          alert('Could not start checkout. Please try again or email hello@secondread.me');
+          console.error('Checkout error:', err);
+        });
+      }
+
+      // Attach click handlers to all elements with data-tier
+      document.addEventListener('click', function(e) {
+        var el = e.target.closest('[data-tier]');
+        if (el) {
+          e.preventDefault();
+          redirectToCheckout(el.getAttribute('data-tier'));
+        }
+      });
+    })();
+  </script>
 
 </body>
 </html>

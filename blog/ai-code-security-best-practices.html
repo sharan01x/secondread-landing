@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Code Security Best Practices: A Founder's Guide to Safe AI-Generated Code | SecondRead</title>
+    <meta name="description" content="AI code security best practices for non-technical founders. Learn how to verify AI-generated code from Bolt, Lovable, Cursor, and other tools before launching. Practical, plain-English guidance.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="AI Code Security Best Practices: A Founder's Guide to Safe AI-Generated Code">
+    <meta property="og:description" content="Practical, plain-English AI code security best practices for non-technical founders using Bolt, Lovable, Cursor, v0, Replit, and other AI coding tools.">
+    <meta property="og:url" content="https://secondread.me/blog/ai-code-security-best-practices">
+    <meta property="og:site_name" content="SecondRead">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="AI Code Security Best Practices: A Founder's Guide to Safe AI-Generated Code">
+    <meta property="twitter:description" content="Practical, plain-English AI code security best practices for non-technical founders.">
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-hover: #28282c;
+        --text-primary: #f7f8f8;
+        --text-secondary: #d0d6e0;
+        --text-tertiary: #8a8f98;
+        --text-quaternary: #62666d;
+        --brand: #5e6ad2;
+        --brand-bright: #7170ff;
+        --brand-hover: #828fff;
+        --green: #27a644;
+        --amber: #ca8a04;
+        --red: #dc2626;
+        --border-subtle: rgba(255,255,255,0.05);
+        --border-standard: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.12);
+      }
+
+     html { scroll-behavior: smooth; }
+
+     body {
+       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg);
+       color: var(--text-primary);
+       line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+     }
+
+     nav {
+       position: sticky;
+       top: 0;
+       z-index: 100;
+       background: rgba(8,9,10,0.85);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border-bottom: 1px solid var(--border-subtle);
+     }
+
+      .nav-inner {
+       max-width: 900px;
+       margin: 0 auto;
+       padding: 14px 24px;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+      }
+
+      .logo-mark {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       text-decoration: none;
+     }
+
+      .logo-icon {
+       width: 28px;
+       height: 28px;
+      }
+
+      .logo-text {
+       font-size: 1.05rem;
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       color: var(--text-primary);
+     }
+
+      .logo-text .accent { color: var(--brand-bright); }
+
+      .nav-links {
+       display: flex;
+       gap: 28px;
+       align-items: center;
+      }
+
+      .nav-links a {
+       color: var(--text-tertiary);
+       text-decoration: none;
+       font-size: 0.875rem;
+       font-weight: 500;
+       transition: color 0.15s;
+      }
+
+      .nav-links a:hover { color: var(--text-primary); }
+
+      .nav-links .btn-ghost {
+       background: rgba(255,255,255,0.03);
+       color: var(--text-secondary);
+       border: 1px solid var(--border-standard);
+       padding: 7px 14px;
+       border-radius: 6px;
+       font-size: 0.875rem;
+       font-weight: 500;
+       text-decoration: none;
+       transition: all 0.15s;
+      }
+
+      .nav-links .btn-ghost:hover {
+       background: rgba(255,255,255,0.06);
+       border-color: var(--border-strong);
+      }
+
+      .container {
+       max-width: 720px;
+       margin: 0 auto;
+       padding: 0 1.5rem;
+      }
+
+      article {
+       padding: 3rem 0 2rem;
+      }
+
+      article h1 {
+       font-size: clamp(1.7rem, 4vw, 2.3rem);
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       line-height: 1.2;
+       margin-bottom: 1rem;
+      }
+
+      .article-meta {
+       color: var(--text-quaternary);
+       font-size: 0.875rem;
+       margin-bottom: 2.5rem;
+       font-weight: 300;
+      }
+
+      article h2 {
+       font-size: 1.4rem;
+       font-weight: 600;
+       letter-spacing: -0.01em;
+       margin-top: 2.5rem;
+       margin-bottom: 1rem;
+       padding-top: 1rem;
+      }
+
+      article h3 {
+       font-size: 1.1rem;
+       font-weight: 600;
+       margin-top: 1.5rem;
+       margin-bottom: 0.75rem;
+      }
+
+      article p {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 1rem;
+       font-weight: 300;
+      }
+
+      article ul, article ol {
+       margin-bottom: 1rem;
+       margin-left: 1.5rem;
+      }
+
+      article li {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 0.5rem;
+       font-weight: 300;
+      }
+
+      article strong {
+       color: var(--text-primary);
+       font-weight: 500;
+      }
+
+      article code {
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.875em;
+       background: var(--bg-surface);
+       padding: 2px 6px;
+       border-radius: 4px;
+       color: var(--brand-bright);
+      }
+
+      article pre {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 8px;
+       padding: 1rem;
+       overflow-x: auto;
+       margin: 1.5rem 0;
+      }
+
+      article pre code {
+       background: none;
+       padding: 0;
+       color: var(--text-secondary);
+       font-size: 0.85rem;
+      }
+
+      .severity {
+       display: inline-block;
+       font-size: 0.75rem;
+       font-weight: 600;
+       padding: 2px 10px;
+       border-radius: 4px;
+       letter-spacing: 0.03em;
+       text-transform: uppercase;
+       margin-left: 0.5rem;
+       vertical-align: middle;
+      }
+
+      .severity-high {
+       background: rgba(220,38,38,0.15);
+       color: var(--red);
+       border: 1px solid rgba(220,38,38,0.3);
+      }
+
+      .severity-medium {
+       background: rgba(202,138,4,0.15);
+       color: var(--amber);
+       border: 1px solid rgba(202,138,4,0.3);
+      }
+
+      .issue-block {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 1.5rem 0;
+      }
+
+      .issue-block h3 {
+       margin-top: 0;
+      }
+
+      .highlight-box {
+       background: rgba(94,106,210,0.08);
+       border: 1px solid rgba(94,106,210,0.2);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+       color: var(--brand-bright);
+       margin-bottom: 1rem;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 2rem 0;
+      }
+
+      .stat-card {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-standard);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+      }
+
+      .stat-card .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--brand-bright);
+        display: block;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-card .label {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+        line-height: 1.4;
+      }
+
+      @media (max-width: 600px) {
+        .stat-grid { grid-template-columns: 1fr; }
+      }
+
+      .cta-button-wrapper {
+       text-align: center;
+       margin-top: 3rem;
+     }
+
+      .btn-primary {
+       display: inline-block;
+       background: var(--brand);
+       color: #fff;
+       padding: 10px 24px;
+       border-radius: 6px;
+       text-decoration: none;
+       font-weight: 500;
+       transition: all 0.15s;
+      }
+
+      .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+
+     footer {
+       border-top: 1px solid var(--border-subtle);
+       padding: 2.5rem 0;
+       margin-top: 4rem;
+      }
+
+      .footer-content {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 0.75rem;
+     }
+
+     footer .logo-mark {
+       text-decoration: none;
+       margin-bottom: 1rem;
+     }
+
+     footer .email {
+       color: var(--text-tertiary);
+       font-size: 0.875rem;
+       text-decoration: none;
+     }
+
+     footer .email:hover { color: var(--text-primary); }
+
+      .disclaimer {
+       color: var(--text-quaternary);
+       font-size: 0.8rem;
+      }
+    </style>
+</head>
+<body>
+
+<nav>
+   <div class="container nav-inner">
+     <a href="/" class="logo-mark" style="text-decoration:none">
+       <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+       <span class="logo-text">second<span class="accent">read</span></span>
+     </a>
+     <div class="nav-links">
+       <a href="/#how-it-works">How it works</a>
+       <a href="/#why">Why SecondRead</a>
+       <a href="/#pricing">Pricing</a>
+       <a href="/blog/">Blog</a>
+       <a href="/#faq">FAQ</a>
+       <a href="https://secondread.me" target="_blank">Audit My Code</a>
+     </div>
+   </div>
+</nav>
+
+<div class="container">
+  <article>
+    <h1>AI Code Security Best Practices: A Founder's Guide to Safe AI-Generated Code</h1>
+    <p class="article-meta">14 min read · Updated August 2026</p>
+
+    <p>You built your app with an AI coding tool — Bolt, Lovable, Cursor, v0, Replit, Windsurf, or one of the dozen others. The app works. It looks good. Users can sign up, click around, and do things. You're ready to launch.</p>
+
+    <p>But here's the uncomfortable reality: the AI that wrote your code is very good at making things <em>work</em> and very bad at making them <em>safe</em>. These are different skills, and the gap between them is where founders get hurt.</p>
+
+    <p>This guide walks through <strong>AI code security best practices</strong> — the practical, non-technical steps every founder should take before launching an app built with AI tools. No security background required. No jargon. Just clear, actionable guidance based on the latest research and real-world vulnerability data.</p>
+
+    <div class="highlight-box">
+      <h3>Why this matters now</h3>
+      <p>The data is stark. Veracode's 2026 GenAI Code Security Report found that <strong>44% of AI code generation tasks introduced security vulnerabilities</strong> — and the security pass rate has stayed flat at roughly 56% despite rapid improvements in everything else. Georgia Tech's Vibe Security Radar tracked <strong>74 CVEs directly attributed to AI coding tools</strong>, with 35 in March 2026 alone (up from 6 in January). A peer-reviewed audit found only <strong>10.5% of vibe-coded apps were secure</strong>. Tenzai found <strong>98% of AI-generated apps shipped without basic security controls</strong>. The problem isn't theoretical. It's measurable, it's growing, and it affects your app.</p>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <span class="number">44%</span>
+        <span class="label">of AI code generation tasks introduce security vulnerabilities (Veracode 2026)</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">74</span>
+        <span class="label">CVEs attributed to AI coding tools (Georgia Tech, March 2026)</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">19.7%</span>
+        <span class="label">of AI code samples contain hallucinated package names (CSA, April 2026)</span>
+      </div>
+      <div class="stat-card">
+        <span class="number">98%</span>
+        <span class="label">of AI-generated apps lack basic security controls (Tenzai, 2025)</span>
+      </div>
+    </div>
+
+    <h2>Best Practice 1: Treat Every Line of AI-Generated Code as Untrusted</h2>
+
+    <p>The single most important mindset shift: <strong>AI-generated code is not vetted code.</strong> It looks correct, it compiles, it passes a linter — but looking correct and being correct are different things. A string-concatenated SQL query looks fine. A missing authorization check looks fine. An API route that accepts any input looks fine. All three can compromise your application.</p>
+
+    <div class="issue-block">
+      <h3>What this means in practice <span class="severity severity-high">Critical Mindset</span></h3>
+      <p>Orca Security, Checkmarx, and Arnica — three leading AI code security firms — all independently arrived at the same first principle: <strong>treat AI output as untrusted input.</strong> The code your AI tool generates should go through the same review and security scanning you'd apply to code from an unknown contractor. Because that's effectively what it is: code from a source that has no accountability for its security.</p>
+      <p>This isn't about distrusting AI. It's about applying the same standard you'd apply to any code that enters your codebase from outside your team. You wouldn't merge a random GitHub pull request without reviewing it. AI-generated code deserves the same scrutiny — arguably more, because it arrives faster and in larger volumes than any human contributor could produce.</p>
+    </div>
+
+    <p><strong>What to do:</strong> Before launching, review every API route, authentication check, and data-handling function in your codebase. If you can't read the code yourself (most founders using AI tools can't), get a plain-English audit that translates the findings into terms you can act on. The goal isn't to become a developer — it's to know whether your app is safe to launch.</p>
+
+    <h2>Best Practice 2: Never Hardcode Secrets in Source Files</h2>
+
+    <p>This is the most common vulnerability in AI-generated code, and it's the most damaging. When an AI tool writes code that connects to an external service — a database, an API, a payment processor — it frequently embeds the credentials directly in the source file. Your <code>OPENAI_API_KEY</code>, your database connection string, your Stripe secret key — all sitting in plain text in a file that gets committed to git.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">Critical</span></h3>
+      <p>Once a secret is in your git history, removing it from the current version doesn't fix the problem. Anyone who gains read access to your repository — an employee, a contractor, a hacker — can search your git history and find every secret that was ever committed. Tools like <code>trufflehog</code> and <code>git-secrets</code> exist specifically because this happens so often.</p>
+      <p>In March 2026, a vibe-coded app leaked <strong>1.5 million API keys</strong> because the founder shipped without a security review. That's not an edge case — it's the predictable outcome of launching AI-generated code that hasn't been audited for hardcoded credentials.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Use environment variables (<code>.env</code> files) for all secrets, never hardcode them in source files</li>
+      <li>Add <code>.env</code>, <code>config/local.json</code>, and any credentials files to <code>.gitignore</code> so they never enter git</li>
+      <li>If a secret was already committed, <strong>rotate it immediately</strong> — don't assume removing it from the current code is enough</li>
+      <li>Run a secret scanner (<code>gitleaks</code>, <code>detect-secrets</code>, or <code>trufflehog</code>) across your entire git history, not just the current code</li>
+    </ul>
+
+    <h2>Best Practice 3: Validate Every Input on Every API Route</h2>
+
+    <p>AI tools are excellent at generating API routes that work with normal inputs. They're terrible at generating API routes that reject malicious inputs. This is because validation requires anticipating what an attacker might send — and AI tools optimize for the happy path, not the attack path.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>A typical AI-generated API route receives a request, reads the body, passes it to a database query, and returns the result. What's missing: no check that required fields exist, no type validation (is <code>email</code> actually an email?), no length limits (what if someone sends a 50MB payload?), no sanitisation (could <code>username</code> contain a script tag?), and no rate limiting.</p>
+      <p>The result: SQL injection (attackers can read or modify your database), cross-site scripting (attackers can inject malicious scripts), denial of service (attackers can crash your app with oversized payloads), and data corruption (unexpected input types cause crashes or data loss).</p>
+    </div>
+
+    <p><strong>What to do:</strong> Every endpoint that accepts external input — API routes, form handlers, webhook receivers — should validate input against a schema before processing. Use a validation library: <strong>Zod</strong> for TypeScript/JavaScript, <strong>Pydantic</strong> for Python, <strong>Joi</strong> for Node.js. Reject anything that doesn't match the expected shape. Add rate limiting to public endpoints. This is the minimum bar for a production API — there is no acceptable shortcut.</p>
+
+    <h2>Best Practice 4: Verify Every Dependency the AI Added</h2>
+
+    <p>AI coding tools add dependencies automatically. If your tool decides your project needs a library for file uploads, date formatting, or HTTP requests, it adds it to your <code>package.json</code> or <code>requirements.txt</code> and imports it in the generated code. This keeps the workflow smooth, but it introduces a risk most founders don't know about: <strong>slopsquatting</strong>.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>The Cloud Security Alliance's April 2026 research found that <strong>19.7% of AI-generated code samples contained at least one hallucinated package name</strong> — a package that doesn't actually exist. Worse, <strong>43% of those hallucinated names reappeared consistently</strong> when the same prompts were repeated. Consistent hallucinations are predictable. Predictable names are registerable.</p>
+      <p>Attackers monitor which package names AI tools frequently hallucinate, then register malicious packages with those exact names on npm, PyPI, and other registries. When your AI tool suggests the package and your build system downloads it, you get malware instead of a library. The package might exfiltrate your environment variables, insert backdoors, or cryptomine using your server's resources — and you'd never know, because you didn't choose the package. The AI did.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Review every dependency your AI tool adds — check it exists on the official registry (npmjs.com, pypi.org) before installing</li>
+      <li>Look at download counts, last publish date, and open issues — abandoned or suspicious packages are red flags</li>
+      <li>Run <code>npm audit</code> or <code>safety check</code> (Python) regularly to detect known vulnerabilities</li>
+      <li>Pin dependency versions in your lockfile so you're not silently pulling updates that might introduce vulnerabilities</li>
+      <li>Consider using <code>--no-auto-commits</code> (Aider) or reviewing dependency changes before they enter your codebase</li>
+    </ul>
+
+    <h2>Best Practice 5: Implement Authentication and Authorization — Don't Trust the AI</h2>
+
+    <p>Authentication (who is this user?) and authorization (what are they allowed to do?) are the two most security-critical parts of any application. They're also the parts where AI tools most commonly cut corners — generating code that "works" for the logged-in user but doesn't properly check whether User A can access User B's data.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>The most common pattern: an AI-generated API route accepts a user ID as a parameter and returns that user's data — without checking whether the person making the request is actually that user. This is called <strong>Broken Object Level Authorization (BOLA)</strong>, and it's #1 on the OWASP API Security Top 10. It means anyone who's logged in can access anyone else's data by simply changing a number in the URL.</p>
+      <p>A 2025 study of Lovable-built apps found that <strong>10.3% had Row Level Security bypass vulnerabilities</strong> across 303 endpoints in 170 projects. The Tea app, a well-known case study, leaked user DMs through broken access control logic that AI generated without review. These aren't hypothetical scenarios — they're documented incidents from real apps.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>For every API route that returns user-specific data, verify that the requester is authorized to see that specific data — not just that they're logged in</li>
+      <li>Never trust a user ID from the client — derive it from the authenticated session</li>
+      <li>Test manually: log in as User A, then try to access User B's data by changing the ID in the URL or request body. If it works, you have a BOLA vulnerability</li>
+      <li>Use your framework's built-in authorization features (Supabase RLS, NextAuth, Django permissions) rather than building custom checks</li>
+    </ul>
+
+    <h2>Best Practice 6: Scan Before You Ship — Every Time</h2>
+
+    <p>The research is unanimous on this point: <strong>static analysis catches what manual review misses.</strong> SAST (Static Application Security Testing) tools scan your code for known vulnerability patterns — SQL injection, hardcoded secrets, missing authentication, vulnerable dependencies. SCA (Software Composition Analysis) tools check your dependencies against known vulnerability databases.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Essential Practice</span></h3>
+      <p>Orca Security's 2026 guidance is blunt: "Gate every merge with SAST and SCA in CI. Make the scan a required check, so a flaw caught at pull-request time never reaches the main branch." Cycode adds: "Scan all AI-generated code with SAST and SCA tools before it reaches a pull request. Prohibit AI-generated code in high-risk areas (authentication, encryption, payment processing) without mandatory human review."</p>
+      <p>The key insight: AI tools generate code faster than humans can review it. Automated scanning is the only practical way to keep up. A SAST scan takes minutes. Manual review of the same code takes hours. For founders who can't read code at all, a scan is the only option — and a plain-English interpretation of the scan results is what SecondRead provides.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Run a SAST scan on your codebase before launch — tools like Semgrep, SonarQube, or CodeQL are free for open-source projects</li>
+      <li>Run an SCA scan to check dependencies — <code>npm audit</code>, <code>safety check</code>, or GitHub's Dependabot alerts</li>
+      <li>If you can't interpret the results yourself (most founders can't), get a plain-English audit that translates them into actionable findings</li>
+      <li>Make scanning a recurring practice, not a one-time check — every significant code change should trigger a new scan</li>
+    </ul>
+
+    <h2>Best Practice 7: Don't Let AI Touch Critical Security Code Unreviewed</h2>
+
+    <p>Some parts of your application are more security-critical than others. Authentication flows, payment processing, encryption, access control, and session management are areas where a single mistake can compromise your entire application. AI tools can generate code for all of these — but that doesn't mean they should do it unsupervised.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">Critical</span></h3>
+      <p>Cycode's 2026 guidance is explicit: "Prohibit AI-generated code in high-risk areas (authentication, encryption, payment processing) without mandatory human review." The reasoning is simple: these are the areas where AI tools' blind spots are most dangerous. A missing authorization check on a blog comment route is bad. A missing authorization check on a payment route is catastrophic.</p>
+      <p>Arnica's CISO guide adds: "The minimum viable compliance baseline for AI code security includes a documented AI coding tool inventory, a defined review gate before AI-generated code merges, evidence of security scanning at each gate, and an audit trail that ties each code artifact back to its originating tool and reviewer."</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Identify your critical security surfaces: authentication, authorization, payment, data access, encryption</li>
+      <li>These areas require expert review — either from a security professional or from a service like SecondRead that specialises in AI code audits</li>
+      <li>For non-critical areas (UI components, marketing pages, internal tools), AI-generated code is lower risk but should still be scanned</li>
+      <li>Keep a record of which parts of your codebase were AI-generated — you'll need this for compliance audits and for scoping future security reviews</li>
+    </ul>
+
+    <h2>Best Practice 8: Iterate Carefully — More AI Prompts Can Make Code Worse</h2>
+
+    <p>Here's a finding that surprises most founders: <strong>iterating with AI doesn't always improve your code.</strong> In many cases, it makes security worse.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Counterintuitive Risk</span></h3>
+      <p>Arnica's 2026 research found that <strong>iterating with AI increases critical vulnerabilities by 37.6%</strong> instead of fixing existing flaws. Each round of AI-generated changes introduces new issues while partially addressing old ones — resulting in a codebase that's more complex, more fragile, and more vulnerable than the version before.</p>
+      <p>This happens because AI tools optimise for the specific request you make, not for the overall health of your codebase. When you ask "add a password reset feature," the tool generates code for that feature — but it might introduce a new vulnerability in the process (e.g., a reset token that doesn't expire, or a reset endpoint that leaks whether an email exists). Each iteration adds surface area. More surface area means more attack vectors.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Be intentional about iterations — each change should address a specific need, not be a fishing expedition</li>
+      <li>After a round of AI changes, re-scan for security issues before moving on</li>
+      <li>Don't use AI to "fix" security issues it introduced — it often creates new ones in the process. Get human review or a specialised audit for security fixes</li>
+      <li>Track your codebase's security posture over time — if each iteration makes it worse, you need a different approach</li>
+    </ul>
+
+    <h2>Best Practice 9: Have a Vulnerability Response Plan Before You Need It</h2>
+
+    <p>Security isn't a state you achieve — it's a practice you maintain. Even with all the best practices above, vulnerabilities will be found. Some will be discovered by you. Some will be discovered by users. Some will be discovered by attackers. The question isn't whether this will happen; it's whether you'll be ready when it does.</p>
+
+    <div class="issue-block">
+      <h3>What to prepare <span class="severity severity-medium">Preparedness</span></h3>
+      <p>The UK's Code of Practice for the Cyber Security of AI (2026) sets baseline expectations that are spreading to other jurisdictions: documented vulnerability disclosure processes, supply chain transparency, and evidence of security testing. PCI DSS 4.0 and SOC 2 Type II auditors are increasingly asking about AI code provenance and whether output undergoes security testing before production deployment.</p>
+      <p>Even if you're not subject to formal compliance requirements yet, having a plan means the difference between a minor incident and a major crisis. A found vulnerability that you patch in 24 hours is a footnote. The same vulnerability that sits unpatched for a month because nobody knows what to do is a headline.</p>
+    </div>
+
+    <p><strong>What to do:</strong></p>
+    <ul>
+      <li>Have a process for receiving vulnerability reports — a security contact email (e.g., security@yourdomain.com) is the minimum</li>
+      <li>Know how to rotate credentials quickly — keep a list of all secrets your app uses and where each is stored</li>
+      <li>Have a way to deploy hotfixes quickly — if a critical vulnerability is found, you need to fix it in hours, not weeks</li>
+      <li>Consider a recurring audit schedule — code changes, and new vulnerabilities are discovered constantly. An audit at launch is good; quarterly audits are better</li>
+    </ul>
+
+    <h2>Best Practice 10: Get an Independent Audit Before Launch</h2>
+
+    <p>You can run all the scans, checklists, and manual reviews above and still miss critical issues. Security is adversarial — attackers think creatively about ways to break your app that you wouldn't anticipate. An independent audit brings fresh eyes and specialised expertise that self-review can't match.</p>
+
+    <div class="highlight-box">
+      <h3>The case for independent review</h3>
+      <p>Arnica's 2026 CISO guide recommends: "Treat AI suggestions as untrusted input. Require the same peer review and security gate coverage you would for any third-party code contribution." Checkmarx adds: "Without rigorous post-generation review, legacy vulnerabilities can slip into production environments undetected."</p>
+      <p>The key word is <strong>independent</strong>. The person who built the app — or the AI tool that generated it — has blind spots about its security. An external reviewer doesn't. They see the code for what it is, not for what it was intended to be.</p>
+    </div>
+
+    <p>For founders who can't read code, an independent audit serves a second purpose: <strong>translation.</strong> A security audit that outputs a list of CVE IDs and file:line references is useless if you don't know what those mean. You need findings translated into plain English: "your API accepts any input without checking it," "your database credentials are in your git history," "any logged-in user can access any other user's data." That translation is what makes an audit actionable for a non-technical founder.</p>
+
+    <h2 style="padding-top: 3rem;">The AI Code Security Checklist: Run This Before Launch</h2>
+
+    <p>Before you ship your AI-built app, run through this checklist. Each item maps to a best practice above:</p>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li style="font-weight: 600;">✅ Have you scanned for hardcoded secrets across your entire git history (not just current code)?</li>
+      <li style="font-weight: 600;">✅ Does every API route validate input against a schema before processing?</li>
+      <li style="font-weight: 600;">✅ Have you verified that every dependency the AI added actually exists on the official registry?</li>
+      <li style="font-weight: 600;">✅ Can User A access User B's data by changing an ID in the URL? (Test this manually.)</li>
+      <li style="font-weight: 600;">✅ Have you run a SAST scan (Semgrep, SonarQube, CodeQL) on your codebase?</li>
+      <li style="font-weight: 600;">✅ Have you run an SCA scan (npm audit, safety check) to check for vulnerable dependencies?</li>
+      <li style="font-weight: 600;">✅ Have authentication, payment, and access control code been reviewed by someone other than the AI?</li>
+      <li style="font-weight: 600;">✅ Do you have a security contact email and a plan for responding to vulnerability reports?</li>
+      <li style="font-weight: 600;">✅ Have you documented which parts of your codebase were AI-generated?</li>
+      <li style="font-weight: 600;">✅ Have you had an independent audit with plain-English findings?</li>
+    </ol>
+
+    <p>If you can't confidently answer "yes" to all ten, your app isn't ready to launch. That's not a judgement — it's the reality of building with AI tools in 2026.</p>
+
+    <h2 style="padding-top: 3rem;">SecondRead: Plain-English AI Code Security Audits</h2>
+
+    <p>This is exactly what SecondRead does. We audit AI-generated codebases — from Bolt, Lovable, Cursor, v0, Replit, Windsurf, Base44, Aider, or any other AI tool — and translate the findings into plain English. No jargon. No cryptic CVE numbers. Just clear explanations of what's broken, how severe it is, and what to do about it.</p>
+
+    <h3 style="padding-top: 1.5rem;">Our process:</h3>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li>Send us your GitHub repo link (public or private — built with any AI tool)</li>
+      <li>We scan for all ten best-practice categories above — plus security vulnerabilities, performance problems, and architectural inconsistencies</li>
+      <li>You receive a plain-English report with severity ratings, clear explanations, and specific fix recommendations</li>
+      <li>Each finding explains <em>why</em> it matters in terms a non-technical founder can understand</li>
+    </ol>
+
+    <p>You don't need to read the code. You don't need to know what BOLA means. You just need to know: "your API keys are in your git history" or "any logged-in user can access any other user's data." Then you can make an informed decision about whether to launch, what to fix first, and what can wait.</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center;">
+      <a href="https://secondread.me" class="btn-primary">Get a Plain-English AI Code Security Audit</a>
+    </div>
+
+    <h2 style="padding-top: 3rem;">The Bottom Line</h2>
+
+    <p>AI coding tools have democratised software development in a way that's genuinely remarkable. Founders who couldn't write a line of code can now build functional, attractive applications. That's a real transformation, and it's not going away.</p>
+
+    <p>But the same tools that democratised <em>building</em> haven't democratised <em>securing</em>. The AI that writes your code doesn't know whether it's safe. The linter that checks your code doesn't know either. And the founder who launched the code — in most cases — doesn't know what to check.</p>
+
+    <p>The 2026 data tells the story: 44% of AI-generated code ships with vulnerabilities. 98% of AI-generated apps lack basic security controls. 74 CVEs and counting. The gap between "it works" and "it's safe" is where founders get hurt — through leaked user data, stolen API keys, compromised databases, and the trust erosion that follows.</p>
+
+    <p>AI code security best practices aren't about becoming a security expert. They're about knowing what to check, when to ask for help, and treating AI-generated code with the same scrutiny you'd apply to any code that enters your production system. The app works. A security audit confirms whether it will keep working — safely — when real users and real attackers interact with it.</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; text-align: center;">
+      <p style="margin-bottom: 1rem;">Get a plain-English <strong>AI code security audit</strong> before your users find the gaps for you. We'll scan your codebase against all ten best-practice categories and deliver a report you can act on — no technical expertise required.</p>
+      <a href="https://secondread.me" class="btn-primary">Audit My AI-Built Codebase at SecondRead</a>
+    </div>
+
+</article>
+</div>
+
+<footer>
+        <div class="container footer-content">
+          <div class="logo-mark">
+            <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+              <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+              <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+            </svg>
+            <span class="logo-text">second<span class="accent">read</span></span>
+          </div>
+          <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+          <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
+        </div>
+      </footer>
+
+</body>
+</html>

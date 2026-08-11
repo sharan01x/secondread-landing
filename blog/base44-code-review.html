@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base44 Code Review: What AI Vibe Coding Platforms Get Wrong About Code Security | SecondRead</title>
+    <meta name="description" content="Built your app with Base44? Discover the hidden security issues AI vibe coding platforms introduce — from authentication bypass to exposed API keys. Get a plain-English Base44 code review.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Base44 Code Review: What AI Vibe Coding Platforms Get Wrong About Code Security">
+    <meta property="og:description" content="Discover the hidden security issues in Base44-generated codebases — from authentication bypass to exposed API endpoints. Get a plain-English Base44 code review from SecondRead.">
+    <meta property="og:url" content="https://secondread.me/blog/base44-code-review">
+    <meta property="og:site_name" content="SecondRead">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="Base44 Code Review: What AI Vibe Coding Platforms Get Wrong About Code Security">
+    <meta property="twitter:description" content="Discover the hidden security issues in Base44-generated codebases. Get a plain-English audit from SecondRead.">
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-hover: #28282c;
+        --text-primary: #f7f8f8;
+        --text-secondary: #d0d6e0;
+        --text-tertiary: #8a8f98;
+        --text-quaternary: #62666d;
+        --brand: #5e6ad2;
+        --brand-bright: #7170ff;
+        --brand-hover: #828fff;
+        --green: #27a644;
+        --amber: #ca8a04;
+        --red: #dc2626;
+        --border-subtle: rgba(255,255,255,0.05);
+        --border-standard: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.12);
+      }
+
+     html { scroll-behavior: smooth; }
+
+     body {
+       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg);
+       color: var(--text-primary);
+       line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+     }
+
+     nav {
+       position: sticky;
+       top: 0;
+       z-index: 100;
+       background: rgba(8,9,10,0.85);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border-bottom: 1px solid var(--border-subtle);
+     }
+
+      .nav-inner {
+       max-width: 900px;
+       margin: 0 auto;
+       padding: 14px 24px;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+      }
+
+      .logo-mark {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       text-decoration: none;
+     }
+
+      .logo-icon {
+       width: 28px;
+       height: 28px;
+     }
+
+      .logo-text {
+       font-size: 1.05rem;
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       color: var(--text-primary);
+     }
+
+      .logo-text .accent { color: var(--brand-bright); }
+
+      .nav-links {
+       display: flex;
+       gap: 28px;
+       align-items: center;
+      }
+
+      .nav-links a {
+       color: var(--text-tertiary);
+       text-decoration: none;
+       font-size: 0.875rem;
+       font-weight: 500;
+       transition: color 0.15s;
+      }
+
+      .nav-links a:hover { color: var(--text-primary); }
+
+      .nav-links .btn-ghost {
+       background: rgba(255,255,255,0.03);
+       color: var(--text-secondary);
+       border: 1px solid var(--border-standard);
+       padding: 7px 14px;
+       border-radius: 6px;
+       font-size: 0.875rem;
+       font-weight: 500;
+       text-decoration: none;
+       transition: all 0.15s;
+      }
+
+      .nav-links .btn-ghost:hover {
+       background: rgba(255,255,255,0.06);
+       border-color: var(--border-strong);
+      }
+
+      .container {
+       max-width: 720px;
+       margin: 0 auto;
+       padding: 0 1.5rem;
+      }
+
+      article {
+       padding: 3rem 0 2rem;
+      }
+
+      article h1 {
+       font-size: clamp(1.7rem, 4vw, 2.3rem);
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       line-height: 1.2;
+       margin-bottom: 1rem;
+      }
+
+      .article-meta {
+       color: var(--text-quaternary);
+       font-size: 0.875rem;
+       margin-bottom: 2.5rem;
+       font-weight: 300;
+      }
+
+      article h2 {
+       font-size: 1.4rem;
+       font-weight: 600;
+       letter-spacing: -0.01em;
+       margin-top: 2.5rem;
+       margin-bottom: 1rem;
+       padding-top: 1rem;
+      }
+
+      article h3 {
+       font-size: 1.1rem;
+       font-weight: 600;
+       margin-top: 1.5rem;
+       margin-bottom: 0.75rem;
+      }
+
+      article p {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 1rem;
+       font-weight: 300;
+      }
+
+      article ul, article ol {
+       margin-bottom: 1rem;
+       margin-left: 1.5rem;
+      }
+
+      article li {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 0.5rem;
+       font-weight: 300;
+      }
+
+      article strong {
+       color: var(--text-primary);
+       font-weight: 500;
+      }
+
+      article code {
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.875em;
+       background: var(--bg-surface);
+       padding: 2px 6px;
+       border-radius: 4px;
+       color: var(--brand-bright);
+      }
+
+      article pre {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 8px;
+       padding: 1rem;
+       overflow-x: auto;
+       margin: 1.5rem 0;
+      }
+
+      article pre code {
+       background: none;
+       padding: 0;
+       color: var(--text-secondary);
+       font-size: 0.85rem;
+      }
+
+      .severity {
+       display: inline-block;
+       font-size: 0.75rem;
+       font-weight: 600;
+       padding: 2px 10px;
+       border-radius: 4px;
+       letter-spacing: 0.03em;
+       text-transform: uppercase;
+       margin-left: 0.5rem;
+       vertical-align: middle;
+      }
+
+      .severity-high {
+       background: rgba(220,38,38,0.15);
+       color: var(--red);
+       border: 1px solid rgba(220,38,38,0.3);
+      }
+
+      .severity-medium {
+       background: rgba(202,138,4,0.15);
+       color: var(--amber);
+       border: 1px solid rgba(202,138,4,0.3);
+      }
+
+      .issue-block {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 1.5rem 0;
+      }
+
+      .issue-block h3 {
+       margin-top: 0;
+      }
+
+      .highlight-box {
+       background: rgba(94,106,210,0.08);
+       border: 1px solid rgba(94,106,210,0.2);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+       color: var(--brand-bright);
+       margin-bottom: 1rem;
+      }
+
+      .cta-button-wrapper {
+       text-align: center;
+       margin-top: 3rem;
+     }
+
+      .btn-primary {
+       display: inline-block;
+       background: var(--brand);
+       color: #fff;
+       padding: 10px 24px;
+       border-radius: 6px;
+       text-decoration: none;
+       font-weight: 500;
+       transition: all 0.15s;
+      }
+
+      .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+
+     footer {
+       border-top: 1px solid var(--border-subtle);
+       padding: 2.5rem 0;
+       margin-top: 4rem;
+      }
+
+      .footer-content {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 0.75rem;
+     }
+
+     footer .logo-mark {
+       text-decoration: none;
+       margin-bottom: 1rem;
+     }
+
+     footer .email {
+       color: var(--text-tertiary);
+       font-size: 0.875rem;
+       text-decoration: none;
+     }
+
+     footer .email:hover { color: var(--text-primary); }
+
+      .disclaimer {
+       color: var(--text-quaternary);
+       font-size: 0.8rem;
+      }
+    </style>
+</head>
+<body>
+
+<nav>
+   <div class="container nav-inner">
+     <a href="/" class="logo-mark" style="text-decoration:none">
+       <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+       <span class="logo-text">second<span class="accent">read</span></span>
+     </a>
+     <div class="nav-links">
+       <a href="/#how-it-works">How it works</a>
+       <a href="/#why">Why SecondRead</a>
+       <a href="/#pricing">Pricing</a>
+       <a href="/#faq">FAQ</a>
+       <a href="https://secondread.me" target="_blank">Audit My Code</a>
+     </div>
+   </div>
+</nav>
+
+<div class="container">
+  <article>
+    <h1>Base44 Code Review: What AI Vibe Coding Platforms Get Wrong About Code Security</h1>
+    <p class="article-meta">13 min read · Updated August 2026</p>
+
+    <p>Base44 is one of the most popular AI vibe coding platforms. Acquired by Wix for $80M in June 2025 after just six months of operation, it lets anyone build fully functional applications using natural language — no coding required. You describe what you want, Base44 generates the app, database, authentication, and API endpoints, and deploys it to the cloud. For founders who want to validate an idea fast, it's an extraordinary tool.</p>
+
+    <p>But "functional" and "secure" are different things. When a platform generates your entire application stack from a text prompt, it inherits the same blind spots as every other AI coding tool — plus some unique to the shared-infrastructure model that vibe coding platforms use. If you're shipping a Base44-built app to production, you need to know what's hiding in the code before your users — or attackers — find it for you.</p>
+
+    <p>This article walks through the six most common security and code quality issues we find in <strong>Base44-generated codebases</strong>, with plain-English explanations of what each issue means, why it matters, and how to fix it. No technical background required.</p>
+
+    <div class="highlight-box">
+      <h3>Why a Base44 code review matters</h3>
+      <p>In July 2025, Wiz Research disclosed a <strong>critical vulnerability in Base44 itself</strong> that allowed unauthorized access to private applications. By providing only a non-secret <code>app_id</code> value (visible in URLs and public configuration files) to undocumented registration endpoints, an attacker could create a verified account for any private application — bypassing SSO and all other authentication controls. The vulnerability affected every application built on Base44's shared infrastructure. It was fixed within 24 hours of disclosure, but it illustrates exactly why a <strong>Base44 code review</strong> is essential: the platform's security posture directly affects your app's security posture.</p>
+    </div>
+
+    <h2>Issue 1: Authentication Bypass via Exposed Endpoints</h2>
+
+    <p>The most serious issue we see in Base44-generated apps is the one Wiz Research discovered in the platform itself — authentication controls that can be bypassed through undocumented or exposed API endpoints. But this isn't just a platform-level problem. When Base44 generates your application's authentication system, it often creates registration, verification, and password reset endpoints that are publicly accessible even when your app is configured as "private."</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">Critical</span></h3>
+      <p>Base44's generated auth flow typically includes endpoints like <code>api/apps/{app_id}/auth/register</code> and <code>api/apps/{app_id}/auth/verify-otp</code>. These endpoints are designed to handle user registration and one-time-password verification. But they're often exposed without authentication checks — meaning anyone who knows (or guesses) your <code>app_id</code> can register a new account.</p>
+      <p>The <code>app_id</code> is not a secret. It's visible in your application's URL, in its <code>manifest.json</code> file, and in the HTML source of any page served by the app. An attacker doesn't need to hack anything to find it — they just need to visit your app and look at the source code.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> If you configured your app as "private" with SSO to keep it internal-only, you might think your data is safe. But if the registration endpoints are exposed, an attacker can create their own account and log in — completely bypassing your SSO investment. This is exactly what Wiz Research demonstrated: they registered accounts for private enterprise applications handling internal chatbots, knowledge bases, PII, and HR operations. Your private app isn't private if anyone can sign up.</p>
+
+    <p><strong>The fix:</strong> Audit every authentication endpoint in your Base44-generated app. Registration and password reset flows should be disabled for private applications, or brought under the same SSO requirements as the main login flow. If you're using SSO, there should be no alternative registration path at all. An <code>app_id</code> is an address, not a credential — it should never be sufficient to establish trust.</p>
+
+    <h2>Issue 2: Shared Infrastructure Means Shared Risk</h2>
+
+    <p>This issue is unique to vibe coding platforms like Base44. Unlike tools like Cursor or Windsurf (which generate code that you run on your own infrastructure), Base44 runs your application on its shared infrastructure. Every customer's app lives on the same platform, served by the same backend, using the same authentication system.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>This shared-infrastructure model creates a critical single point of failure. A single flaw in Base44's core — especially in a component like authentication — instantly affects every application built on the platform. The Wiz Research vulnerability is a perfect example: one misconfiguration in Base44's registration endpoints exposed every private application on the platform.</p>
+      <p>You inherit Base44's security posture entirely. If they have a vulnerability, you have a vulnerability. If they misconfigure a CORS header, your API is open. If their database access controls are weak, your user data is at risk. You have no control over this — you can't patch their servers, configure their firewalls, or audit their internal code.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> When you build on a vibe coding platform, you're not just trusting them with your code — you're trusting them with your users' data, your authentication system, and your entire security posture. If the platform is compromised, every app built on it is compromised. You can't fix this by writing better prompts or configuring your app differently. The only mitigation is awareness: know that your security is only as strong as the platform's, and plan accordingly.</p>
+
+    <p><strong>The fix:</strong> Understand that Base44's security is your security. Monitor their security advisories and disclosure blog. If your app handles sensitive data, consider whether the shared-infrastructure model is appropriate. For internal tools and prototypes, the risk may be acceptable. For production apps handling customer PII or financial data, it deserves serious scrutiny.</p>
+
+    <h2>Issue 3: App IDs Treated as Secrets When They're Not</h2>
+
+    <p>Base44 generates a unique <code>app_id</code> for every application. This ID is used throughout the app — in URLs, API calls, configuration files, and authentication flows. The platform's architecture often treats this ID as a semi-secret value, using it as a parameter in authentication and authorization checks.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>The <code>app_id</code> is not a secret. It appears in your application's URL path, in the <code>manifest.json</code> file served publicly by every Base44 app, and in the HTML source of your pages. Security researchers found they could discover Base44 applications in the wild simply by searching for the string "base44" in public URL scanning services, or by looking for the shared CNAME record (<code>base44.onrender.com</code>) used by apps with custom domains.</p>
+      <p>When a non-secret value is used as part of an authentication or authorization flow, it creates an obvious attack path: find the ID (trivial), use it to access protected endpoints (as Wiz demonstrated), and you're in.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> This is the same pattern that caused the Wiz Research vulnerability. If your app uses any identifier — <code>app_id</code>, tenant ID, project ID, or API key — as part of its trust model, and that identifier is visible to anyone who visits your app, your security is illusory. It's the digital equivalent of putting a padlock on a door and taping the key to the doorframe.</p>
+
+    <p><strong>The fix:</strong> Treat every identifier as public information. An <code>app_id</code> should determine where a request is routed, not whether a request is trusted. If any part of your authentication flow accepts an identifier as sufficient proof of authorization, that flow is broken. Require a separate, verifiable proof of identity — a signed token, an SSO assertion, or an invite-only enrollment process — before granting access.</p>
+
+    <h2>Issue 4: Hardcoded Secrets in Generated Code</h2>
+
+    <p>When Base44 generates your application, it creates configuration files, API routes, and database connection logic. To make things "just work," it often hardcodes API keys, database connection strings, and authentication tokens directly into the generated source files.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">Critical</span></h3>
+      <p>The generated code needs to connect to services — your database, third-party APIs, payment processors, email providers. Base44 makes these connections work by embedding the necessary credentials directly in the code. But these credentials are now in your source files, visible to anyone with repo access.</p>
+      <p>If you export your code to GitHub (which Base44 supports via GitHub sync on paid plans), and your repository is public, your secrets are exposed to the entire internet. Even if your repo is private, anyone with collaborator access — including former team members, contractors, or compromised accounts — can read them.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> An exposed database connection string gives attackers direct access to all your user data. An exposed API key can mean someone else racks up charges on your account, sends emails from your domain, or impersonates your application. This is the single most common issue we find in AI-generated codebases — and it's the most damaging because it's the easiest to exploit.</p>
+
+    <p><strong>The fix:</strong> If you've enabled GitHub sync, audit every file in your repository for hardcoded credentials before making it public. Move all secrets to environment variables (Base44 supports environment configuration). Never commit <code>.env</code> files, API keys, or database connection strings to git. If you've already pushed secrets to a public repo, rotate every exposed credential immediately — changing the code isn't enough; the old values are in the git history forever.</p>
+
+    <h2>Issue 5: Missing Input Validation on Generated API Routes</h2>
+
+    <p>Base44 generates API endpoints based on your app's data model. When you describe "a customer management app," it creates routes for creating, reading, updating, and deleting customers. These routes work — they accept requests and write to the database. But they often lack input validation, type checking, and sanitisation.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">High Risk</span></h3>
+      <p>A typical Base44-generated route receives a request, reads the body, and inserts it directly into the database. What's missing? No validation that the body contains the expected fields. No type checking (is <code>email</code> actually an email, or a 50KB string?). No sanitisation (could <code>name</code> contain a script tag that executes when displayed?). No size limits (what if someone sends a 10MB payload?). No rate limiting (what if someone sends 10,000 requests per second?).</p>
+      <p>Without input validation, your API is vulnerable to injection attacks (malicious data crafted to exploit your database), data corruption (invalid values written to fields that break your app logic), and denial of service (overwhelming your API with large or rapid requests).</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> Your app might work perfectly when you test it with normal inputs. But the moment real users (or automated scanners) interact with it, unvalidated inputs can crash the app, corrupt data, or expose other users' information. One bad request can take down your entire service — and you won't know until it happens.</p>
+
+    <p><strong>The fix:</strong> Every API route should validate its input against a schema before processing. If your app exposes a "create customer" endpoint, define what fields are required, what types they should be, and what length or format constraints apply. Reject any request that doesn't match. This isn't optional — it's the bare minimum for a production API.</p>
+
+    <h2>Issue 6: Vendor Lock-In Limits Your Security Options</h2>
+
+    <p>This is a structural issue rather than a code-level one, but it has direct security implications. Base44 apps run on Base44's infrastructure. While the platform offers GitHub sync on paid plans (from $20/month), full code export is limited — you can view and edit the frontend code, but the backend, database schema, and API logic remain on Base44's platform.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Medium Risk</span></h3>
+      <p>If you discover a security issue in your Base44 app that requires changes to the backend or infrastructure layer, you're limited to what Base44's platform allows you to modify. You can't patch a vulnerable library version, change server configuration, add a WAF (Web Application Firewall), or implement custom security middleware — because you don't control the server.</p>
+      <p>This means your incident response options are limited. If a vulnerability is found in Base44's infrastructure (as Wiz Research demonstrated), you can't fix it yourself — you wait for Base44 to patch it. If you need to meet a compliance requirement that Base44's platform doesn't support, you may need to rebuild your app elsewhere.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> Security isn't just about writing secure code — it's about the ability to respond when things go wrong. If your security posture depends entirely on a third-party platform, your response time is limited by their response time. For internal tools and prototypes, this is usually acceptable. For production apps serving real customers, it's a risk you need to understand and plan for.</p>
+
+    <p><strong>The fix:</strong> Understand the boundaries of what you control. Know which parts of your app you can modify (frontend, API routes you've written) and which parts you can't (infrastructure, authentication system, database configuration). If your app needs a security control that Base44 doesn't support — custom rate limiting, IP allowlisting, audit logging — you may need to build it as a layer on top of your Base44 app, or consider migrating to a platform that gives you more control.</p>
+
+    <h2 style="padding-top: 3rem;">But Doesn't Base44 Have Built-in Security?</h2>
+
+    <p>Base44 offers authentication tools including social login (Google) and custom SSO for enterprise, built-in database management, and application security features. Wix (the parent company) has enterprise-grade security credentials. But there's a difference between <em>the platform being secure</em> and <em>the apps it generates being secure</em>.</p>
+
+    <p><strong>Base44's built-in security handles the basics.</strong> It provides authentication flows, database access, and deployment infrastructure. But it can't guarantee that your app's specific configuration is secure, that your generated API routes validate input, or that your exported code doesn't contain hardcoded secrets. And as the Wiz Research vulnerability showed, even the platform's own authentication system can have critical flaws.</p>
+
+    <p>A real <strong>Base44 code review</strong> requires understanding what the platform handles (infrastructure, authentication framework) versus what you're responsible for (app configuration, input validation, secret management, access control). It means verifying that the authentication settings you chose actually protect your app — and that no exposed endpoints bypass them.</p>
+
+    <h2 style="padding-top: 3rem;">SecondRead: Plain-English Base44 Code Reviews</h2>
+
+    <p>This is exactly what SecondRead does. We audit AI-generated codebases — including Base44-built projects — and translate the findings into plain English. No jargon. No cryptic CVE numbers. Just clear explanations of what's broken, how severe it is, and what to do about it.</p>
+
+    <h3 style="padding-top: 1.5rem;">Our process:</h3>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li>Send us your GitHub repo link (public or private — built with Base44 or any other AI tool)</li>
+      <li>We scan for all six issue categories above — plus security vulnerabilities, performance problems, and architectural inconsistencies</li>
+      <li>You receive a plain-English report with severity ratings, clear explanations, and specific fix recommendations</li>
+      <li>Each finding explains <em>why</em> it matters in terms a non-technical founder can understand</li>
+    </ol>
+
+    <p>You don't need to read the code. You don't need to know what an <code>app_id</code> is. You just need to know: "anyone can register for your private app" or "your API accepts any input without checking it."</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center;">
+      <a href="https://secondread.me" class="btn-primary">Get a Plain-English Base44 Code Review</a>
+    </div>
+
+    <h3 style="padding-top: 2.5rem; margin-top: 2rem;">Quick Base44 Audit Checklist: Run This Today</h3>
+
+    <p>If you want to check the most critical issues yourself before getting a full audit, run through this checklist:</p>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li style="font-weight: 600;">✅ Are registration and password reset endpoints disabled for your private app?</li>
+      <li style="font-weight: 600;">✅ Is your <code>app_id</code> used anywhere as part of an authentication or authorization check?</li>
+      <li style="font-weight: 600;">✅ Are there any hardcoded API keys, database URLs, or secrets in your exported source files?</li>
+      <li style="font-weight: 600;">✅ If you've enabled GitHub sync, is your repository private?</li>
+      <li style="font-weight: 600;">✅ Do your generated API routes validate request bodies before writing to the database?</li>
+      <li style="font-weight: 600;">✅ Can a user submit invalid data (wrong type, oversized payload, special characters) without being rejected?</li>
+      <li style="font-weight: 600;">✅ Do you know which parts of your app's security you control vs. which depend on Base44?</li>
+      <li style="font-weight: 600;">✅ Are you monitoring Base44's security advisories for platform-level vulnerabilities?</li>
+    </ol>
+
+    <p><strong>Or let SecondRead do it all.</strong> We'll run a comprehensive audit across all these categories and more, delivering a plain-English report that tells you exactly what needs fixing — in priority order.</p>
+
+    <h2 style="padding-top: 3rem;">The Bottom Line for Founders Building with Base44</h2>
+
+    <p>Base44 is a genuinely remarkable tool for going from idea to deployed app. Its natural-language-to-application pipeline is one of the fastest paths from concept to working software available today. For prototyping, validation, and internal tools, it's hard to beat the speed.</p>
+
+    <p>But the shared-infrastructure model means your security is only as strong as the platform's. The Wiz Research vulnerability proved this — one flaw in Base44's authentication system exposed every private application on the platform. Your app doesn't exist in isolation; it exists in a shared environment where a single weakness affects everyone.</p>
+
+    <p>And when you export your code or sync to GitHub, you take on responsibility for the generated code's security — the hardcoded secrets, the missing validation, the exposed endpoints. The platform can't audit your specific configuration for you.</p>
+
+    <p>A quality <strong>Base44 code review</strong> isn't about rejecting the platform or questioning its value. It's about understanding where the platform's security ends and your responsibility begins — and making sure the gap between them doesn't become an open door for attackers.</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; text-align: center;">
+      <p style="margin-bottom: 1rem;">Get a plain-English <strong>Base44 code review</strong> before your users find the gaps for you. The report we generate will tell you exactly what's broken, how severe it is, and how to fix it — with no technical expertise required on your end.</p>
+      <a href="https://secondread.me" class="btn-primary">Audit My Base44 Codebase at SecondRead</a>
+    </div>
+  </article>
+</div>
+
+<footer>
+  <div class="container footer-content">
+    <a href="/" class="logo-mark" style="text-decoration:none">
+      <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+        <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+        <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+      </svg>
+      <span class="logo-text">second<span class="accent">read</span></span>
+    </a>
+    <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+    <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
+  </div>
+</footer>
+
+</body>
+</html>

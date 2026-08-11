@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aider Code Review: What AI Pair Programming Tools Get Wrong About Code Quality | SecondRead</title>
+    <meta name="description" content="Built your app with Aider? Discover the hidden code quality issues AI pair programming tools introduce — from skipped pre-commit hooks to secrets in git history. Get a plain-English Aider code review.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2308090a'/%3E%3Cpath d='M30 35 L18 50 L30 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M70 35 L82 50 L70 65' stroke='%235e6ad2' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='50' r='6' fill='%237170ff'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Aider Code Review: What AI Pair Programming Tools Get Wrong About Code Quality">
+    <meta property="og:description" content="Discover the hidden code quality issues in Aider-generated codebases — from skipped pre-commit hooks to secrets committed to git history. Get a plain-English Aider code review from SecondRead.">
+    <meta property="og:url" content="https://secondread.me/blog/aider-code-review">
+    <meta property="og:site_name" content="SecondRead">
+    <meta property="twitter:card" content="summary">
+    <meta property="twitter:title" content="Aider Code Review: What AI Pair Programming Tools Get Wrong About Code Quality">
+    <meta property="twitter:description" content="Discover the hidden code quality issues in Aider-generated codebases. Get a plain-English audit from SecondRead.">
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --bg: #08090a;
+        --bg-panel: #0f1011;
+        --bg-surface: #191a1b;
+        --bg-hover: #28282c;
+        --text-primary: #f7f8f8;
+        --text-secondary: #d0d6e0;
+        --text-tertiary: #8a8f98;
+        --text-quaternary: #62666d;
+        --brand: #5e6ad2;
+        --brand-bright: #7170ff;
+        --brand-hover: #828fff;
+        --green: #27a644;
+        --amber: #ca8a04;
+        --red: #dc2626;
+        --border-subtle: rgba(255,255,255,0.05);
+        --border-standard: rgba(255,255,255,0.08);
+        --border-strong: rgba(255,255,255,0.12);
+      }
+
+     html { scroll-behavior: smooth; }
+
+     body {
+       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+       background: var(--bg);
+       color: var(--text-primary);
+       line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+     }
+
+     nav {
+       position: sticky;
+       top: 0;
+       z-index: 100;
+       background: rgba(8,9,10,0.85);
+       backdrop-filter: blur(12px);
+       -webkit-backdrop-filter: blur(12px);
+       border-bottom: 1px solid var(--border-subtle);
+     }
+
+      .nav-inner {
+       max-width: 900px;
+       margin: 0 auto;
+       padding: 14px 24px;
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+      }
+
+      .logo-mark {
+       display: inline-flex;
+       align-items: center;
+       gap: 10px;
+       text-decoration: none;
+     }
+
+      .logo-icon {
+       width: 28px;
+       height: 28px;
+      }
+
+      .logo-text {
+       font-size: 1.05rem;
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       color: var(--text-primary);
+     }
+
+      .logo-text .accent { color: var(--brand-bright); }
+
+      .nav-links {
+       display: flex;
+       gap: 28px;
+       align-items: center;
+      }
+
+      .nav-links a {
+       color: var(--text-tertiary);
+       text-decoration: none;
+       font-size: 0.875rem;
+       font-weight: 500;
+       transition: color 0.15s;
+      }
+
+      .nav-links a:hover { color: var(--text-primary); }
+
+      .nav-links .btn-ghost {
+       background: rgba(255,255,255,0.03);
+       color: var(--text-secondary);
+       border: 1px solid var(--border-standard);
+       padding: 7px 14px;
+       border-radius: 6px;
+       font-size: 0.875rem;
+       font-weight: 500;
+       text-decoration: none;
+       transition: all 0.15s;
+      }
+
+      .nav-links .btn-ghost:hover {
+       background: rgba(255,255,255,0.06);
+       border-color: var(--border-strong);
+      }
+
+      .container {
+       max-width: 720px;
+       margin: 0 auto;
+       padding: 0 1.5rem;
+      }
+
+      article {
+       padding: 3rem 0 2rem;
+      }
+
+      article h1 {
+       font-size: clamp(1.7rem, 4vw, 2.3rem);
+       font-weight: 600;
+       letter-spacing: -0.02em;
+       line-height: 1.2;
+       margin-bottom: 1rem;
+      }
+
+      .article-meta {
+       color: var(--text-quaternary);
+       font-size: 0.875rem;
+       margin-bottom: 2.5rem;
+       font-weight: 300;
+      }
+
+      article h2 {
+       font-size: 1.4rem;
+       font-weight: 600;
+       letter-spacing: -0.01em;
+       margin-top: 2.5rem;
+       margin-bottom: 1rem;
+       padding-top: 1rem;
+      }
+
+      article h3 {
+       font-size: 1.1rem;
+       font-weight: 600;
+       margin-top: 1.5rem;
+       margin-bottom: 0.75rem;
+      }
+
+      article p {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 1rem;
+       font-weight: 300;
+      }
+
+      article ul, article ol {
+       margin-bottom: 1rem;
+       margin-left: 1.5rem;
+      }
+
+      article li {
+       font-size: 1rem;
+       line-height: 1.7;
+       color: var(--text-secondary);
+       margin-bottom: 0.5rem;
+       font-weight: 300;
+      }
+
+      article strong {
+       color: var(--text-primary);
+       font-weight: 500;
+      }
+
+      article code {
+       font-family: 'JetBrains Mono', monospace;
+       font-size: 0.875em;
+       background: var(--bg-surface);
+       padding: 2px 6px;
+       border-radius: 4px;
+       color: var(--brand-bright);
+      }
+
+      article pre {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 8px;
+       padding: 1rem;
+       overflow-x: auto;
+       margin: 1.5rem 0;
+      }
+
+      article pre code {
+       background: none;
+       padding: 0;
+       color: var(--text-secondary);
+       font-size: 0.85rem;
+      }
+
+      .severity {
+       display: inline-block;
+       font-size: 0.75rem;
+       font-weight: 600;
+       padding: 2px 10px;
+       border-radius: 4px;
+       letter-spacing: 0.03em;
+       text-transform: uppercase;
+       margin-left: 0.5rem;
+       vertical-align: middle;
+      }
+
+      .severity-high {
+       background: rgba(220,38,38,0.15);
+       color: var(--red);
+       border: 1px solid rgba(220,38,38,0.3);
+      }
+
+      .severity-medium {
+       background: rgba(202,138,4,0.15);
+       color: var(--amber);
+       border: 1px solid rgba(202,138,4,0.3);
+      }
+
+      .issue-block {
+       background: var(--bg-panel);
+       border: 1px solid var(--border-standard);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 1.5rem 0;
+      }
+
+      .issue-block h3 {
+       margin-top: 0;
+      }
+
+      .highlight-box {
+       background: rgba(94,106,210,0.08);
+       border: 1px solid rgba(94,106,210,0.2);
+       border-radius: 12px;
+       padding: 1.5rem;
+       margin: 2rem 0;
+      }
+
+      .highlight-box h3 {
+       color: var(--brand-bright);
+       margin-bottom: 1rem;
+      }
+
+      .cta-button-wrapper {
+       text-align: center;
+       margin-top: 3rem;
+     }
+
+      .btn-primary {
+       display: inline-block;
+       background: var(--brand);
+       color: #fff;
+       padding: 10px 24px;
+       border-radius: 6px;
+       text-decoration: none;
+       font-weight: 500;
+       transition: all 0.15s;
+      }
+
+      .btn-primary:hover { background: var(--brand-hover); transform: translateY(-1px); }
+
+     footer {
+       border-top: 1px solid var(--border-subtle);
+       padding: 2.5rem 0;
+       margin-top: 4rem;
+      }
+
+      .footer-content {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       gap: 0.75rem;
+     }
+
+     footer .logo-mark {
+       text-decoration: none;
+       margin-bottom: 1rem;
+     }
+
+     footer .email {
+       color: var(--text-tertiary);
+       font-size: 0.875rem;
+       text-decoration: none;
+     }
+
+     footer .email:hover { color: var(--text-primary); }
+
+      .disclaimer {
+       color: var(--text-quaternary);
+       font-size: 0.8rem;
+      }
+    </style>
+</head>
+<body>
+
+<nav>
+   <div class="container nav-inner">
+     <a href="/" class="logo-mark" style="text-decoration:none">
+       <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+       <span class="logo-text">second<span class="accent">read</span></span>
+     </a>
+     <div class="nav-links">
+       <a href="/#how-it-works">How it works</a>
+       <a href="/#why">Why SecondRead</a>
+       <a href="/#pricing">Pricing</a>
+       <a href="/blog/">Blog</a>
+       <a href="/#faq">FAQ</a>
+       <a href="https://secondread.me" target="_blank">Audit My Code</a>
+     </div>
+   </div>
+</nav>
+
+<div class="container">
+  <article>
+    <h1>Aider Code Review: What AI Pair Programming Tools Get Wrong About Code Quality</h1>
+    <p class="article-meta">13 min read · Updated August 2026</p>
+
+    <p>Aider is a different kind of AI coding tool. It doesn't live inside your IDE like Cursor or Windsurf — it runs in your terminal, editing files directly in your Git repository. Every change Aider makes is committed automatically with a descriptive message. You can <code>/undo</code> any change instantly, and the full history of AI edits is right there in your git log. It's a beautifully simple workflow for developers who already live in the terminal.</p>
+
+    <p>But Aider's strengths are also its risks. Automatic commits mean every AI-generated change goes straight into your git history — including the bad ones. The terminal interface means you review diffs as text rather than in a visual editor, so subtle issues are easier to miss. And Aider's ability to run shell commands, install packages, and modify configuration files means a single prompt can ripple across your entire project in ways you might not catch until something breaks in production.</p>
+
+    <p>This article walks through the six most common code quality issues we find in <strong>Aider-generated codebases</strong>, with plain-English explanations of what each issue means, why it matters, and how to fix it. No technical background required.</p>
+
+    <div class="highlight-box">
+      <h3>Why an Aider code review matters</h3>
+      <p>Aider has over 44,000 GitHub stars and 6.8 million installs. It processes roughly 15 billion tokens per week across its users' codebases. According to Veracode's 2026 research, <strong>45% of AI-generated code ships with OWASP Top 10 vulnerabilities</strong>. Georgia Tech's Vibe Security Radar tracked 35 new CVEs from AI coding tools in March 2026 alone — and estimates the real number is 5-10x higher. If you're building with Aider, a proper <strong>Aider code review</strong> before production isn't optional. It's essential.</p>
+    </div>
+
+    <h2>Issue 1: Automatic Commits Bypass Pre-Commit Hooks</h2>
+
+    <p>This is the most Aider-specific issue on this list, and it's a big one. By default, Aider commits changes using the <code>--no-verify</code> flag, which skips all pre-commit hooks. Pre-commit hooks are automated checks that run before code enters your git history — things like linting rules, secret detection, formatting standards, and security scans.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>When Aider generates code and commits it, those commits bypass any quality gates you've set up. If you have a pre-commit hook that scans for hardcoded secrets, checks for known vulnerable dependencies, or enforces code formatting standards — none of those checks run on Aider's commits. The code goes straight into your git history unvalidated.</p>
+      <p>This is particularly dangerous because the <em>presence</em> of pre-commit hooks creates a false sense of security. You assume your hooks are catching issues. But they're not — Aider silently skips them by default. You only find out when something breaks in production.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> You may have invested time setting up security scanning and quality checks — tools that catch leaked API keys, flag vulnerable dependencies, and enforce coding standards. Aider's default behaviour quietly sidesteps all of them. Every AI-generated commit enters your codebase unchecked. The safety net you thought you had isn't actually catching anything.</p>
+
+    <p><strong>The fix:</strong> Run Aider with <code>--git-commit-verify</code> to enable pre-commit hooks on Aider's commits. This ensures the same quality checks that apply to human commits also apply to AI commits. If hooks fail, Aider's commit is blocked — which is exactly what you want. Review the git log for commits tagged with <code>(aider)</code> to see which changes bypassed your checks historically.</p>
+
+    <h2>Issue 2: Secrets Committed Directly to Git History</h2>
+
+    <p>Aider's automatic commit model means that when it writes a secret into a source file — an API key, a database connection string, a JWT signing key — that secret is immediately committed to git. It's not just in your working directory; it's in your permanent git history. And git history is remarkably persistent.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">Critical</span></h3>
+      <p>When Aider writes code that connects to an external service, it often hardcodes credentials directly in the source file so the code "just works." It might pull your <code>OPENAI_API_KEY</code> from the environment and embed it in a config file, or write a database connection string directly into a Python module. Then it commits that file.</p>
+      <p>Even if you later notice the secret and remove it, it remains in your git history. Anyone who clones the repo — an employee, a contractor, a hacker who gains read access — can use <code>git log -p</code> to find every secret that was ever committed. Tools like <code>trufflehog</code> and <code>git-secrets</code> exist precisely because secrets in git history are so common and so damaging.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> A leaked OpenAI API key can rack up thousands of euros in usage charges. A leaked database connection string can give attackers direct access to all your user data. And because these secrets are in git history — not just the current code — simply removing them from the latest version doesn't fix the problem. You need to rewrite git history or rotate every compromised credential, which is painful and time-consuming.</p>
+
+    <p><strong>The fix:</strong> Never let Aider commit files containing secrets. Use a <code>.gitignore</code> file to exclude <code>.env</code>, <code>config/local.json</code>, and any file containing credentials. Set up a pre-commit secret scanner (like <code>detect-secrets</code> or <code>gitleaks</code>) — and make sure Aider runs with <code>--git-commit-verify</code> so the scanner actually runs. If a secret is already in your history, rotate it immediately — don't assume removing it from the current code is enough.</p>
+
+    <h2>Issue 3: Git History Pollution Hides Real Issues</h2>
+
+    <p>Aider's atomic commit model — one commit per change, with a descriptive message — is one of its best features. It makes it easy to <code>/undo</code> specific changes and review what the AI did. But in practice, it also creates extremely noisy git history. A single feature might generate 15-20 commits, each with a message like "feat: add input validation" or "fix: update error handling."</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Medium Risk</span></h3>
+      <p>When your git log is flooded with dozens of AI-generated commits, it becomes very hard to spot the important changes. A human reviewer scanning the log sees a wall of similar-looking commit messages and starts skimming. The one commit that introduced a security vulnerability — buried between "fix: formatting" and "feat: add button" — gets missed.</p>
+      <p>This noise also makes code review harder. In a normal workflow, you'd review a pull request with a handful of focused commits. With Aider, you're reviewing 20+ atomic commits, many of which are trivial (fixing typos, adjusting whitespace, reverting and re-applying changes). The signal-to-noise ratio drops, and reviewers fatigue sets in.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> Noisy git history doesn't just make development harder — it actively hides problems. When every change looks the same in the git log, the dangerous changes blend in. A commit that introduces an SQL injection vulnerability looks identical to a commit that fixes a CSS typo. If nobody's doing thorough code review (and in many AI-assisted projects, nobody is), the vulnerability ships to production.</p>
+
+    <p><strong>The fix:</strong> Squash Aider's commits before merging to your main branch. Use <code>git rebase -i</code> to combine related commits into a single, meaningful commit with a clear description. This preserves the benefit of Aider's atomic workflow during development while keeping your main branch history clean and reviewable. Alternatively, use Aider's <code>--no-auto-commits</code> flag and commit manually after reviewing the full diff.</p>
+
+    <h2>Issue 4: Missing Input Validation on API Routes and Functions</h2>
+
+    <p>Like every AI coding tool, Aider is good at making things work and bad at making them safe. When you ask Aider to "create a user registration endpoint" or "add a contact form handler," it generates code that accepts input and does something with it. What it often doesn't generate is the validation layer that ensures the input is safe.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-high">High Risk</span></h3>
+      <p>A typical Aider-generated API route receives a request, reads the body, passes it to a database query or function, and returns the result. What's missing: no check that required fields are present, no type validation (is <code>email</code> actually an email?), no length limits (what if someone sends a 50MB payload?), no sanitisation (could <code>username</code> contain a script tag?), and no rate limiting.</p>
+      <p>Without validation, your API is open to injection attacks, data corruption, and denial of service. A user might submit a string where a number is expected, causing a crash. An attacker might submit a specially crafted payload that exploits your database. Or someone might flood your endpoint with thousands of requests per second, taking down your entire service.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> Your app works fine when you test it with normal inputs. But real users — and automated attackers — don't send normal inputs. One unvalidated endpoint can crash your app, corrupt your database, or expose other users' data. And because Aider commits changes automatically, the vulnerable code might already be in your git history before you've had a chance to review it.</p>
+
+    <p><strong>The fix:</strong> Every API route and function that accepts external input should validate it against a schema before processing. Use a validation library — Zod for TypeScript, Pydantic for Python, or Joi for Node.js. Reject anything that doesn't match the expected shape. Add rate limiting to public endpoints. This isn't a nice-to-have; it's the minimum bar for a production API.</p>
+
+    <h2>Issue 5: Unvetted Dependencies Introduced Automatically</h2>
+
+    <p>Aider can suggest and install dependencies as part of its code generation workflow. If it decides your project needs a specific package — say, a library for handling file uploads or a utility for date formatting — it adds it to your <code>requirements.txt</code> or <code>package.json</code> and imports it in the generated code. This keeps the workflow smooth, but it introduces supply chain risk.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Medium Risk</span></h3>
+      <p>The packages Aider suggests come from its training data — which means they're popular packages that may or may not be secure. A package might have a known vulnerability that hasn't been patched. It might be abandoned and unmaintained. It might be a typosquatting package — a malicious package with a name similar to a popular one, designed to trick developers into installing it.</p>
+      <p>In 2026, attackers increasingly target public package registries (npm, PyPI) with typosquatting and dependency confusion attacks. They bank on developers — especially those using AI tools — accepting suggestions without scrutiny. Aider's automatic commit behaviour makes this worse: a vulnerable dependency is committed to your project before you've had a chance to evaluate it.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> A single vulnerable dependency can compromise your entire application. The package might have access to your filesystem, your environment variables, and your network. A malicious package could exfiltrate user data, insert backdoors, or cryptomine using your server's resources. You'd never know — because you didn't choose the package, the AI did, and it was committed automatically.</p>
+
+    <p><strong>The fix:</strong> Review every dependency Aider adds. Before accepting a commit that introduces a new package, check the package on its registry — look at download counts, maintenance status, and open issues. Run a dependency scanner like <code>npm audit</code> or <code>safety check</code> (Python) regularly. Consider using <code>--no-auto-commits</code> so you can review dependency changes before they enter your git history.</p>
+
+    <h2>Issue 6: /undo Is a False Safety Net</h2>
+
+    <p>Aider's <code>/undo</code> command is one of its signature features. Made a bad change? Just type <code>/undo</code> and the last commit is reverted. It's fast, it's clean, and it gives you confidence to experiment. But <code>/undo</code> only undoes the git commit — it doesn't undo the side effects of the code that was executed.</p>
+
+    <div class="issue-block">
+      <h3>What happens <span class="severity severity-medium">Medium Risk</span></h3>
+      <p>When Aider generates code, it sometimes runs that code — executing scripts, running database migrations, starting servers, making API calls. If Aider generates a migration script that alters your database schema and runs it, <code>/undo</code> reverts the script file in git but doesn't roll back the database changes. If Aider generates code that sends an email or makes a payment API call, <code>/undo</code> doesn't unsend the email or refund the payment.</p>
+      <p>Similarly, if Aider installs a package, <code>/undo</code> doesn't uninstall it. If it modifies a configuration file that a running service reads, <code>/undo</code> doesn't restart the service with the old config. The git history is clean, but your system state has been permanently altered.</p>
+    </div>
+
+    <p><strong>Why it matters for founders:</strong> <code>/undo</code> creates a false sense of security. You think "if Aider messes up, I can just undo it." But undo only works for the code, not for what the code did. A database migration that dropped a column, an API call that charged a customer, a file that was written to disk — these side effects persist even after <code>/undo</code> reverts the commit. In production-adjacent environments, this can be catastrophic.</p>
+
+    <p><strong>The fix:</strong> Never rely on <code>/undo</code> as your safety net for production-adjacent work. Use a separate development database. Don't point Aider at production credentials or live API keys. If Aider runs migrations or scripts, verify their effects manually before proceeding. Treat <code>/undo</code> as a convenience for code changes, not a rollback strategy for system state.</p>
+
+    <h2 style="padding-top: 3rem;">But Aider Is Open Source — Isn't That Safer?</h2>
+
+    <p>Aider is open source (Apache 2.0 licence) with over 44,000 GitHub stars. Its code is publicly auditable, and its community is active. That's genuinely valuable — it means the tool itself is transparent in a way that proprietary tools like Cursor or Windsurf aren't. You can read exactly what Aider does with your code, your API keys, and your git history.</p>
+
+    <p>But the security of the <em>tool</em> and the security of the <em>code it generates</em> are different things. Aider being open source doesn't mean the code it writes is secure. The LLM that generates the code — whether that's Claude, GPT-4, DeepSeek, or a local model — has the same blind spots regardless of which tool calls it. Missing input validation, hardcoded secrets, and unvetted dependencies are LLM problems, not Aider problems. Aider just happens to commit them to git faster than any other tool.</p>
+
+    <p>A real <strong>Aider code review</strong> requires understanding what the generated code is <em>supposed to do</em>, whether it handles edge cases and malicious inputs, and whether the architecture will hold up under real-world conditions — not just whether it passes a lint check or compiles without errors.</p>
+
+    <h2 style="padding-top: 3rem;">SecondRead: Plain-English Aider Code Reviews</h2>
+
+    <p>This is exactly what SecondRead does. We audit AI-generated codebases — including Aider-built projects — and translate the findings into plain English. No jargon. No cryptic CVE numbers. Just clear explanations of what's broken, how severe it is, and what to do about it.</p>
+
+    <h3 style="padding-top: 1.5rem;">Our process:</h3>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li>Send us your GitHub repo link (public or private — built with Aider or any other AI tool)</li>
+      <li>We scan for all six issue categories above — plus security vulnerabilities, performance problems, and architectural inconsistencies</li>
+      <li>You receive a plain-English report with severity ratings, clear explanations, and specific fix recommendations</li>
+      <li>Each finding explains <em>why</em> it matters in terms a non-technical founder can understand</li>
+    </ol>
+
+    <p>You don't need to read the code. You don't need to know what a pre-commit hook is. You just need to know: "your API keys are in your git history" or "your API accepts any input without checking it."</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 1rem; text-align: center;">
+      <a href="https://secondread.me" class="btn-primary">Get a Plain-English Aider Code Review</a>
+    </div>
+
+    <h3 style="padding-top: 2.5rem; margin-top: 2rem;">Quick Aider Audit Checklist: Run This Today</h3>
+
+    <p>If you want to check the most critical issues yourself before getting a full audit, run through this checklist:</p>
+
+    <ol style="margin-bottom: 1rem; margin-left: 1.5rem;">
+      <li style="font-weight: 600;">✅ Is Aider running with <code>--git-commit-verify</code> so pre-commit hooks actually run?</li>
+      <li style="font-weight: 600;">✅ Are there any hardcoded API keys, database URLs, or secrets in your git history (not just current code)?</li>
+      <li style="font-weight: 600;">✅ Does your <code>.gitignore</code> exclude all files containing credentials?</li>
+      <li style="font-weight: 600;">✅ Do your API routes validate request bodies before processing?</li>
+      <li style="font-weight: 600;">✅ Have you reviewed every dependency Aider added for known vulnerabilities?</li>
+      <li style="font-weight: 600;">✅ Can User A access User B's data by changing an ID in the URL?</li>
+      <li style="font-weight: 600;">✅ Has Aider run any scripts or migrations whose side effects wouldn't be caught by <code>/undo</code>?</li>
+      <li style="font-weight: 600;">✅ Is your git history clean enough to spot a dangerous commit, or is it buried under 50 AI-generated messages?</li>
+    </ol>
+
+    <p><strong>Or let SecondRead do it all.</strong> We'll run a comprehensive audit across all these categories and more, delivering a plain-English report that tells you exactly what needs fixing — in priority order.</p>
+
+    <h2 style="padding-top: 3rem;">The Bottom Line for Founders Building with Aider</h2>
+
+    <p>Aider is a genuinely excellent tool for developers who work in the terminal. Its git-native workflow, atomic commits, and <code>/undo</code> capability make it one of the most thoughtful AI coding tools available. The open-source model and provider-agnostic design mean you're not locked into any one company's ecosystem. For building features and iterating quickly, it's hard to beat.</p>
+
+    <p>But Aider's strengths — automatic commits, terminal speed, autonomous action — also amplify its risks. Secrets go into git history faster. Pre-commit hooks are skipped by default. Dependencies are committed before you've reviewed them. And <code>/undo</code> creates a false sense that mistakes are always reversible — when in reality, only the code is reversible, not the side effects.</p>
+
+    <p>The 2026 data is clear: 45% of AI-generated code ships with OWASP Top 10 vulnerabilities. Georgia Tech tracked 35 CVEs from AI coding tools in a single month. The question isn't whether your Aider-built app has issues — it's whether you'll find them before your users do.</p>
+
+    <p>A quality <strong>Aider code review</strong> isn't about replacing Aider or doubting its output. It's about verifying that what the AI generated is actually safe, secure, and scalable when real users interact with it. The app runs. A code review confirms whether it will keep running.</p>
+
+    <div style="background: rgba(94,106,210,0.08); border: 1px solid rgba(94,106,210,0.2); border-radius: 12px; padding: 1.5rem; margin-top: 2rem; text-align: center;">
+      <p style="margin-bottom: 1rem;">Get a plain-English <strong>Aider code review</strong> before your users find the gaps for you. The report we generate will tell you exactly what's broken, how severe it is, and how to fix it — with no technical expertise required on your end.</p>
+      <a href="https://secondread.me" class="btn-primary">Audit My Aider Codebase at SecondRead</a>
+    </div>
+
+</article>
+</div>
+
+<footer>
+   <div class="container footer-content">
+     <div style="display: inline-flex; margin-bottom: 1rem;">
+       <svg viewBox="0 0 100 100" fill="none" style="width: 35px; height: 35px; display: block;">
+         <rect width="100" height="100" rx="22" fill="#0f1011" stroke="rgba(255,255,255,0.08)"/>
+         <path d="M32 36 L20 50 L32 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <path d="M68 36 L80 50 L68 64" stroke="#5e6ad2" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+         <circle cx="50" cy="50" r="5" fill="#7170ff"/>
+       </svg>
+     </div>
+     <a href="https://secondread.me" style="text-decoration: none; font-size: 1rem; font-weight: 600;">second<span style="color: var(--brand-bright);">read</span></a>
+     <a class="email" href="mailto:hello@secondread.me">hello@secondread.me</a>
+     <p class="disclaimer">Reports are based on static analysis at a point in time. Re-audit whenever your code changes significantly.</p>
+   </div>
+</footer>
+
+</body>
+</html>
